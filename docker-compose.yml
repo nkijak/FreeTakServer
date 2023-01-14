@@ -1,0 +1,18 @@
+version: "3.2"
+
+volumes:
+  ftsdata:
+
+services:
+  fts:
+    build:
+      dockerfile: ./Dockerfile
+    ports:
+      - "8080:8080"
+      - "8087:8087"
+      - "9000:9000"
+      - "19023:19023"
+    volumes:
+      - ftsdata:/opt/FTSData
+    environment:
+      - FTS_DP_ADDRESS="$${curl ifconfig.me}"
