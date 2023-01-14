@@ -10,10 +10,14 @@ from FreeTAKServer.core.connection.TCPSocketController import TCPSocketControlle
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.main.impl.default_factory import DefaultFactory
-from digitalpy.core.digipy_configuration.impl.inifile_configuration import InifileConfiguration
+from digitalpy.core.digipy_configuration.impl.inifile_configuration import (
+    InifileConfiguration,
+)
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )

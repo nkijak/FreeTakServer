@@ -9,11 +9,15 @@ import random
 import sys
 import threading
 
-from digitalpy.core.digipy_configuration.impl.inifile_configuration import InifileConfiguration
+from digitalpy.core.digipy_configuration.impl.inifile_configuration import (
+    InifileConfiguration,
+)
 from digitalpy.core.digipy_configuration.configuration import Configuration
 from digitalpy.core.main.impl.default_factory import DefaultFactory
 from digitalpy.core.main.object_factory import ObjectFactory
-from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
+from digitalpy.core.component_management.impl.component_registration_handler import (
+    ComponentRegistrationHandler,
+)
 from digitalpy.core.zmanager.subject import Subject
 
 from FreeTAKServer.core.configuration.CreateStartupFilesController import (
@@ -34,7 +38,9 @@ from FreeTAKServer.core.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
 from FreeTAKServer.core.configuration.configuration_wizard import ask_user_for_config
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.services.federation.federation import (
     FederationServerService,
 )
@@ -48,10 +54,13 @@ from FreeTAKServer.core.services.SSLCoTServiceController import (
 from FreeTAKServer.core.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
-from FreeTAKServer.services.tcp_cot_service.tcp_cot_service_main import TCPCoTServiceMain
-#from FreeTAKServer.core.connection.TCPCoTServiceController import (
+from FreeTAKServer.services.tcp_cot_service.tcp_cot_service_main import (
+    TCPCoTServiceMain,
+)
+
+# from FreeTAKServer.core.connection.TCPCoTServiceController import (
 #    TCPCoTServiceController,
-#)
+# )
 from FreeTAKServer.core.services.TCPDataPackageService import (
     TCPDataPackageService as TCPFlaskFunctions,
 )
@@ -178,40 +187,37 @@ class FTS:
             self.configuration.set_value(
                 key="subject_port",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
-                section="TCPCoTService"
+                section="TCPCoTService",
             )
 
             self.configuration.set_value(
                 key="subject_protocol",
                 value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
-                section="TCPCoTService"
+                section="TCPCoTService",
             )
 
             # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_address",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
-                section="TCPCoTService"
+                section="TCPCoTService",
             )
 
-             # TODO: replace placeholder values with real implementation values
+            # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_port",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
-                section="TCPCoTService"
+                section="TCPCoTService",
             )
 
             self.configuration.set_value(
                 key="integration_manager_protocol",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
-                section="TCPCoTService"
+                section="TCPCoTService",
             )
 
-
             self.configuration.set_value(
-                key="service_id",
-                value="tcp_cot_service",
-                section="TCPCoTService"
+                key="service_id", value="tcp_cot_service", section="TCPCoTService"
             )
 
             self.core_tcp_user_queue_send = Queue()
@@ -235,7 +241,7 @@ class FTS:
                     TCPCoTService,
                     self.core_tcp_user_queue_send,
                     ObjectFactory.get_instance("factory"),
-                    ObjectFactory.get_instance("tracingprovider")
+                    ObjectFactory.get_instance("tracingprovider"),
                 ),
             )
             self.CoTService.start()
@@ -642,7 +648,7 @@ class FTS:
                 key="integration_manager_address",
                 value=f"{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol}://{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress}:{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort}",
                 section="RoutingWorker",
-            )   
+            )
 
             # define the configuration for the action mapper (the default action mapper is
             # specified as utilization of this service implicitly assumes that the async
@@ -713,7 +719,9 @@ class FTS:
         except Exception as e:
             return -1
 
-    def start_integration_manager_service(self, FTSServiceStartupConfigObject: FTSObj) -> bool:
+    def start_integration_manager_service(
+        self, FTSServiceStartupConfigObject: FTSObj
+    ) -> bool:
         """Starts the integration manager service.
 
         Returns:
@@ -751,8 +759,12 @@ class FTS:
                 section="IntegrationManager",
             )
             # begin the integration_manager_service
-            self.integration_manager_service = ObjectFactory.get_instance("IntegrationManager")
-            proc = multiprocessing.Process(target=self.integration_manager_service.start)
+            self.integration_manager_service = ObjectFactory.get_instance(
+                "IntegrationManager"
+            )
+            proc = multiprocessing.Process(
+                target=self.integration_manager_service.start
+            )
             proc.start()
 
             return True
@@ -774,7 +786,7 @@ class FTS:
             return True
         except Exception:
             return False
-            
+
     # change object name to FTSServiceStartupConfigObject
     def start_all(self, FTSServiceStartupConfigObject):
         import copy

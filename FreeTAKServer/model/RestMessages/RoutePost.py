@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.Route import Route, RestEnumerations
 
+
 class RoutePost(Route):
     def __init__(self):
         pass

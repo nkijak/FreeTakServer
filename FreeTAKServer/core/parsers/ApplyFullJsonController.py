@@ -1,15 +1,15 @@
-
 from FreeTAKServer.model.FTSModel.Event import Event
 from defusedxml import ElementTree as etree
 
 
 class ApplyFullJsonController:
-
     def serialize_simplified_json_to_comprehensive(self, Json, JsonFull):
         for key, value in Json.items():
             if isinstance(value, dict):
                 subJsonFull = JsonFull[key]
-                out = self.serialize_simplified_json_to_comprehensive(subJsonFull, value)
+                out = self.serialize_simplified_json_to_comprehensive(
+                    subJsonFull, value
+                )
                 JsonFull[key] = out
             else:
                 JsonFull[key] = value
@@ -18,13 +18,13 @@ class ApplyFullJsonController:
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
             if isinstance(value, dict):
-                submodel = getattr(model, 'get' + key)
+                submodel = getattr(model, "get" + key)
                 submodel = submodel()
                 out = self.serializeJsonToModel(submodel, value)
-                setter = getattr(model, 'set' + key)
+                setter = getattr(model, "set" + key)
                 setter(out)
             else:
-                setter = getattr(model, 'set' + key)
+                setter = getattr(model, "set" + key)
                 setter(value)
         return model
 
@@ -32,12 +32,12 @@ class ApplyFullJsonController:
     def serialize_model_to_json(self, modelObject, level=0):
         json = {}
         for attribName, value in modelObject.__dict__.items():
-            if hasattr(value, '__dict__'):
+            if hasattr(value, "__dict__"):
                 tagElement = self.serialize_model_to_json(value, level=level + 1)
                 # handles instances in which tag name begins with double underscore
-                if attribName[0] == '_':
+                if attribName[0] == "_":
                     # changed from .tag to [attribName] as tagElement should be a dict
-                    tagElement[attribName] = '_' + tagElement[attribName]
+                    tagElement[attribName] = "_" + tagElement[attribName]
                     json[attribName] = tagElement
                 else:
                     json[attribName] = tagElement
@@ -51,9 +51,9 @@ class ApplyFullJsonController:
                     # removed the attrib name because this would have thrown a too-many-function-args error
                     tagElement = self.serialize_model_to_json(element, level=level + 1)
                     # handles instances in which tag name begins with double underscore
-                    if attribName[0] == '_':
+                    if attribName[0] == "_":
                         # changed from .tag to [attribName] as tagElement should be a dict
-                        tagElement[attribName] = '_' + tagElement[attribName]
+                        tagElement[attribName] = "_" + tagElement[attribName]
                         json[attribName] = tagElement
                     else:
                         json[attribName] = tagElement
@@ -64,8 +64,8 @@ class ApplyFullJsonController:
 
             else:
                 # handles instances in which attribute name begins with double underscore
-                if attribName[0] == '_':
-                    json['_' + attribName] = value
+                if attribName[0] == "_":
+                    json["_" + attribName] = value
                 else:
                     json[attribName] = value
 

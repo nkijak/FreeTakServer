@@ -1,5 +1,4 @@
 class sensorVariables:
-
     def __init__(self):
         self.elevation = None
         self.vfov = None

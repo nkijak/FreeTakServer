@@ -7,6 +7,7 @@ from FreeTAKServer.model.SpecificCoT.SendSensorDrone import SendSensorDrone
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
 
+
 class SendSensorDroneController:
     def __init__(self, json):
         tempObject = event.DroneSensor()
@@ -15,7 +16,9 @@ class SendSensorDroneController:
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         if not config.OptimizeAPI:
             DatabaseController().create_CoT(object.modelObject)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):

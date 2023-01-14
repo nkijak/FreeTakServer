@@ -4,13 +4,14 @@ from FreeTAKServer.model.SpecificCoT.SendSPISensor import SendSPISensor
 
 
 class SendSPISensorController:
-
     def __init__(self, json):
         tempObject = event.SPISensor()
         object = SendSPISensor()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):

@@ -1,4 +1,5 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+
 #######################################################
 #
 # __serverdestination.py
@@ -8,7 +9,10 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 # Original author: Corvo
 #
 #######################################################
-from FreeTAKServer.model.FTSModelVariables.ServerdestinationVariables import ServerdestionationVariables as vars
+from FreeTAKServer.model.FTSModelVariables.ServerdestinationVariables import (
+    ServerdestionationVariables as vars,
+)
+
 
 class _Serverdestination(FTSProtocolObject):
     def __init__(self):
@@ -16,8 +20,6 @@ class _Serverdestination(FTSProtocolObject):
         # ANDROID-R52JB0CDC4E
         self.destinations = None
         # destinations getter
-
-  
 
     def getdestinations(self):
         return self.destinations

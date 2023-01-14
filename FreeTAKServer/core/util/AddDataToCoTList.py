@@ -1,4 +1,6 @@
 import queue
+
+
 class AddDataToCoTList:
     def __init__(self):
         pass
@@ -8,7 +10,7 @@ class AddDataToCoTList:
         for service, pipe in pipes.items():
             try:
                 if service != origin:
-                    #print('putting data in pipe')
+                    # print('putting data in pipe')
                     pipe.put(data)
             except Exception as e:
                 print(e)

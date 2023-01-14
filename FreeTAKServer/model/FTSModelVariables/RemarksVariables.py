@@ -16,8 +16,8 @@ class RemarksVariables:
     @classmethod
     def geochat(cls):
         cls.TIME = None
-        cls.SOURCE = 'SERVER'
+        cls.SOURCE = "SERVER"
         cls.SOURCEID = None
-        cls.INTAG = 'DEFAULT'
-        cls.TO = 'All Chat Rooms'
+        cls.INTAG = "DEFAULT"
+        cls.TO = "All Chat Rooms"
         return cls

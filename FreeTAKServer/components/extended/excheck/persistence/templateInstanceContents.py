@@ -1,5 +1,8 @@
-from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContentsData import templateInstanceContentsData
+from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContentsData import (
+    templateInstanceContentsData,
+)
 import datetime as dt
+
 
 class templateInstanceContents:
     def __init__(self):
@@ -7,7 +10,8 @@ class templateInstanceContents:
         self.timestamp = ""
         self.creatorUid = ""
         self.settimestamp()
-    def settimestamp(self, timestamp = None):
+
+    def settimestamp(self, timestamp=None):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if timestamp == None:
             timer = dt.datetime

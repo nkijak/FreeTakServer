@@ -3,7 +3,9 @@ from typing import List, NewType
 
 from defusedxml import ElementTree as etree
 from digitalpy.core.main.object_factory import ObjectFactory
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject

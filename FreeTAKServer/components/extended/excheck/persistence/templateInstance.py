@@ -1,5 +1,8 @@
-from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import templateInstanceContents
+from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import (
+    templateInstanceContents,
+)
 import datetime as dt
+
 
 class templateInstance:
     def __init__(self):
@@ -19,7 +22,9 @@ class templateInstance:
         if isinstance(content, templateInstanceContents):
             self.contents.append(content)
         else:
-            raise Exception("invalid type passed to setcontents this setter only accepts templateInstanceContentsJson instances")
+            raise Exception(
+                "invalid type passed to setcontents this setter only accepts templateInstanceContentsJson instances"
+            )
 
     def setname(self, name):
         self.name = name

@@ -7,7 +7,9 @@ from defusedxml import ElementTree as etree
 from lxml.etree import Element  # pylint: disable=no-name-in-module
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 
 from digitalpy.core.main.object_factory import ObjectFactory
 

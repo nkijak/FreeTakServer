@@ -5,6 +5,7 @@ from .Point import Point
 from FreeTAKServer.model.FTSModelVariables.EventVariables import EventVariables as vars
 import uuid
 
+
 class Event(FTSProtocolObject):
     # TODO: fix emergency methods
     # Event.py
@@ -17,13 +18,12 @@ class Event(FTSProtocolObject):
     #
 
     # event as an XML
-    #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
-        
-        #default constructor
+    # <?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o">
+
+    # default constructor
 
     def __init__(self):
-        
-        
+
         self.version = None
         self.uid = None
         self.type = None
@@ -33,37 +33,41 @@ class Event(FTSProtocolObject):
         self.point = None
         self.start = None
 
-
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
-        
+
         # starting time when an event should be considered valid
         start = "%Y-%m-%dT%H:%M:%SZ"
         # basic event
         # Gives a hint about how the coordinates were generated
-        
 
         # Schema version of this event instance (e.g.  2.0)
-            
+
         # time stamp: when the event was generated
-        time = "%Y-%m-%dT%H:%M:%SZ" 
-        
+        time = "%Y-%m-%dT%H:%M:%SZ"
+
         # Hierarchically organized hint about event type (defaultis is 'a-f-G-I'
         # for infrastructure)
-        
-            # ending time when an event should no longer be considered valid
-        stale = "%Y-%m-%dT%H:%M:%SZ" 
-        
-            # Globally unique name for this information on this event can have
-            # additional information attached.
+
+        # ending time when an event should no longer be considered valid
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+
+        # Globally unique name for this information on this event can have
+        # additional information attached.
         # e.g.  -ping means that this request is a ping
-        
+
         # flag to determine if this event is a Ping, in this case append to the UID
-        
+
     @staticmethod
-    def Connection(version=vars.connection().VERSIONNUM, uid=vars.connection().UID, type=vars.connection().TYPE,
-                  how=vars.connection().HOW, time=vars.connection().TIME, start=vars.connection().START,
-                  stale=vars.connection().STALE):
+    def Connection(
+        version=vars.connection().VERSIONNUM,
+        uid=vars.connection().UID,
+        type=vars.connection().TYPE,
+        how=vars.connection().HOW,
+        time=vars.connection().TIME,
+        start=vars.connection().START,
+        stale=vars.connection().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.Connection())
         event.setpoint(Point())
@@ -77,9 +81,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def GeoChat(version=vars.geochat().VERSIONNUM, uid=vars.geochat().UID, type=vars.geochat().TYPE,
-                how=vars.geochat().HOW, time=vars.geochat().TIME, start=vars.geochat().START,
-                stale=vars.geochat().STALE):
+    def GeoChat(
+        version=vars.geochat().VERSIONNUM,
+        uid=vars.geochat().UID,
+        type=vars.geochat().TYPE,
+        how=vars.geochat().HOW,
+        time=vars.geochat().TIME,
+        start=vars.geochat().START,
+        stale=vars.geochat().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.GeoChat())
         event.setpoint(Point())
@@ -93,9 +103,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def Ping(version=vars.ping().VERSIONNUM, uid=vars.ping().UID, type=vars.ping().TYPE,
-             how=vars.ping().HOW, time=vars.ping().TIME, start=vars.ping().START,
-             stale=vars.ping().STALE):
+    def Ping(
+        version=vars.ping().VERSIONNUM,
+        uid=vars.ping().UID,
+        type=vars.ping().TYPE,
+        how=vars.ping().HOW,
+        time=vars.ping().TIME,
+        start=vars.ping().START,
+        stale=vars.ping().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.Ping())
         event.setpoint(Point())
@@ -109,9 +125,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def Other(version=vars.other().VERSIONNUM, uid=vars.other().UID, type=vars.other().TYPE,
-              how=vars.other().HOW, time=vars.other().TIME, start=vars.other().START,
-              stale=vars.other().STALE):
+    def Other(
+        version=vars.other().VERSIONNUM,
+        uid=vars.other().UID,
+        type=vars.other().TYPE,
+        how=vars.other().HOW,
+        time=vars.other().TIME,
+        start=vars.other().START,
+        stale=vars.other().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.Other())
         event.setpoint(Point())
@@ -123,13 +145,19 @@ class Event(FTSProtocolObject):
         event.setstart(start)
         event.setstale(stale)
         return event
-               
+
     @staticmethod
     # this is the only constructor which doesn't instantiate detail as detail is a required protobuf
     # attribute and will therefore be in the message regardless
-    def FederatedCoT(version=vars.FederatedCoT().VERSIONNUM, uid=vars.FederatedCoT().UID, type=vars.FederatedCoT().TYPE,
-              how=vars.FederatedCoT().HOW, time=vars.FederatedCoT().TIME, start=vars.FederatedCoT().START,
-              stale=vars.FederatedCoT().STALE):
+    def FederatedCoT(
+        version=vars.FederatedCoT().VERSIONNUM,
+        uid=vars.FederatedCoT().UID,
+        type=vars.FederatedCoT().TYPE,
+        how=vars.FederatedCoT().HOW,
+        time=vars.FederatedCoT().TIME,
+        start=vars.FederatedCoT().START,
+        stale=vars.FederatedCoT().STALE,
+    ):
         event = Event()
         event.setpoint(Point())
         event.setdetail(Detail.FederatedCoT())
@@ -143,9 +171,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def emergecyOn(version=vars.emergency_on().VERSIONNUM, uid=vars.emergency_on().UID, type=vars.emergency_on().TYPE,
-                   how=vars.emergency_on().HOW, time=vars.emergency_on().TIME, start=vars.emergency_on().START,
-                   stale=vars.emergency_on().STALE):
+    def emergecyOn(
+        version=vars.emergency_on().VERSIONNUM,
+        uid=vars.emergency_on().UID,
+        type=vars.emergency_on().TYPE,
+        how=vars.emergency_on().HOW,
+        time=vars.emergency_on().TIME,
+        start=vars.emergency_on().START,
+        stale=vars.emergency_on().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.emergencyOn())
         event.setpoint(Point())
@@ -159,9 +193,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def emergecyOff(version=vars.emergency_off().VERSIONNUM, uid=vars.emergency_off().UID, type=vars.emergency_off().TYPE,
-                    how=vars.emergency_off().HOW, time=vars.emergency_off().TIME, start=vars.emergency_off().START,
-                    stale=vars.emergency_off().STALE):
+    def emergecyOff(
+        version=vars.emergency_off().VERSIONNUM,
+        uid=vars.emergency_off().UID,
+        type=vars.emergency_off().TYPE,
+        how=vars.emergency_off().HOW,
+        time=vars.emergency_off().TIME,
+        start=vars.emergency_off().START,
+        stale=vars.emergency_off().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.emergencyOff())
         event.setpoint(Point())
@@ -175,9 +215,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def dropPoint(version=vars.drop_point().VERSIONNUM, uid=vars.drop_point().UID, type=vars.drop_point().TYPE,
-                  how=vars.drop_point().HOW, time=vars.drop_point().TIME, start=vars.drop_point().START,
-                  stale=vars.drop_point().STALE):
+    def dropPoint(
+        version=vars.drop_point().VERSIONNUM,
+        uid=vars.drop_point().UID,
+        type=vars.drop_point().TYPE,
+        how=vars.drop_point().HOW,
+        time=vars.drop_point().TIME,
+        start=vars.drop_point().START,
+        stale=vars.drop_point().STALE,
+    ):
         event = Event()
         event.setdetail(Detail.dropPoint())
         event.setpoint(Point())
@@ -191,9 +237,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def disconnect(UID=vars.disconnect().uid, VERSION=vars.disconnect().version, TYPE=vars.disconnect().type,
-                   TIME=vars.disconnect().time, START=vars.disconnect().start, STALE=vars.disconnect().stale,
-                   HOW=vars.disconnect().how):
+    def disconnect(
+        UID=vars.disconnect().uid,
+        VERSION=vars.disconnect().version,
+        TYPE=vars.disconnect().type,
+        TIME=vars.disconnect().time,
+        START=vars.disconnect().start,
+        STALE=vars.disconnect().stale,
+        HOW=vars.disconnect().how,
+    ):
         event = Event()
         event.setuid(UID)
         event.setversion(VERSION)
@@ -207,9 +259,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def DeleteVideo(UID=vars.DeleteVideo().uid, VERSION=vars.DeleteVideo().version, TYPE=vars.DeleteVideo().type,
-                   TIME=vars.DeleteVideo().time, START=vars.DeleteVideo().start, STALE=vars.DeleteVideo().stale,
-                   HOW=vars.DeleteVideo().how):
+    def DeleteVideo(
+        UID=vars.DeleteVideo().uid,
+        VERSION=vars.DeleteVideo().version,
+        TYPE=vars.DeleteVideo().type,
+        TIME=vars.DeleteVideo().time,
+        START=vars.DeleteVideo().start,
+        STALE=vars.DeleteVideo().stale,
+        HOW=vars.DeleteVideo().how,
+    ):
         event = Event()
         event.setuid(UID)
         event.setversion(VERSION)
@@ -223,9 +281,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def takPong(VERSION=vars.takPong().version, UID=vars.takPong().uid, TYPE=vars.takPong().type,
-                HOW=vars.takPong().how, TIME=vars.takPong().time, START=vars.takPong().start,
-                STALE=vars.takPong().stale):
+    def takPong(
+        VERSION=vars.takPong().version,
+        UID=vars.takPong().uid,
+        TYPE=vars.takPong().type,
+        HOW=vars.takPong().how,
+        TIME=vars.takPong().time,
+        START=vars.takPong().start,
+        STALE=vars.takPong().stale,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -238,9 +302,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def UserUpdate(VERSION=vars.UserUpdate().version, UID=vars.UserUpdate().uid, TYPE=vars.UserUpdate().type,
-                   HOW=vars.UserUpdate().how, TIME=vars.UserUpdate().time, START=vars.UserUpdate().start,
-                   STALE=vars.UserUpdate().stale):
+    def UserUpdate(
+        VERSION=vars.UserUpdate().version,
+        UID=vars.UserUpdate().uid,
+        TYPE=vars.UserUpdate().type,
+        HOW=vars.UserUpdate().how,
+        TIME=vars.UserUpdate().time,
+        START=vars.UserUpdate().start,
+        STALE=vars.UserUpdate().stale,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -254,9 +324,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def SimpleCoT(VERSION=vars.SimpleCoT().version, UID=vars.SimpleCoT().uid, TYPE=vars.SimpleCoT().type,
-                  TIME=vars.SimpleCoT().time, START=vars.SimpleCoT().start, STALE=vars.SimpleCoT().stale,
-                  HOW=vars.SimpleCoT().how):
+    def SimpleCoT(
+        VERSION=vars.SimpleCoT().version,
+        UID=vars.SimpleCoT().uid,
+        TYPE=vars.SimpleCoT().type,
+        TIME=vars.SimpleCoT().time,
+        START=vars.SimpleCoT().start,
+        STALE=vars.SimpleCoT().stale,
+        HOW=vars.SimpleCoT().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -270,9 +346,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def Presence(VERSION=vars.Presence().version, UID=vars.Presence().uid, TYPE=vars.Presence().type,
-                  TIME=vars.Presence().time, START=vars.Presence().start, STALE=vars.Presence().stale,
-                  HOW=vars.Presence().how):
+    def Presence(
+        VERSION=vars.Presence().version,
+        UID=vars.Presence().uid,
+        TYPE=vars.Presence().type,
+        TIME=vars.Presence().time,
+        START=vars.Presence().start,
+        STALE=vars.Presence().stale,
+        HOW=vars.Presence().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -286,10 +368,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def ExcheckUpdate(VERSION=vars.ExcheckUpdate().version, UID=vars.ExcheckUpdate().uid,
-                              TYPE=vars.ExcheckUpdate().type, TIME=vars.ExcheckUpdate().time,
-                              START=vars.ExcheckUpdate().start, STALE=vars.ExcheckUpdate().stale,
-                              HOW=vars.ExcheckUpdate().how):
+    def ExcheckUpdate(
+        VERSION=vars.ExcheckUpdate().version,
+        UID=vars.ExcheckUpdate().uid,
+        TYPE=vars.ExcheckUpdate().type,
+        TIME=vars.ExcheckUpdate().time,
+        START=vars.ExcheckUpdate().start,
+        STALE=vars.ExcheckUpdate().stale,
+        HOW=vars.ExcheckUpdate().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -301,12 +388,17 @@ class Event(FTSProtocolObject):
         event.point = Point()
         event.detail = Detail.ExcheckUpdate()
         return event
-    
+
     @staticmethod
-    def Route(VERSION=vars.Route().version, UID=vars.Route().uid,
-                              TYPE=vars.Route().type, TIME=vars.Route().time,
-                              START=vars.Route().start, STALE=vars.Route().stale,
-                              HOW=vars.Route().how):
+    def Route(
+        VERSION=vars.Route().version,
+        UID=vars.Route().uid,
+        TYPE=vars.Route().type,
+        TIME=vars.Route().time,
+        START=vars.Route().start,
+        STALE=vars.Route().stale,
+        HOW=vars.Route().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -320,10 +412,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def VideoStream(VERSION=vars.VideoStream().version,
-                    UID = vars.VideoStream().uid, TYPE=vars.VideoStream().type,
-                    TIME=vars.VideoStream().time, START=vars.VideoStream().start,
-                    STALE=vars.VideoStream().stale, HOW=vars.VideoStream().how):
+    def VideoStream(
+        VERSION=vars.VideoStream().version,
+        UID=vars.VideoStream().uid,
+        TYPE=vars.VideoStream().type,
+        TIME=vars.VideoStream().time,
+        START=vars.VideoStream().start,
+        STALE=vars.VideoStream().stale,
+        HOW=vars.VideoStream().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -337,10 +434,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def DroneSensor(VERSION=vars.DroneSensor().version,
-                    UID = vars.DroneSensor().uid, TYPE=vars.DroneSensor().type,
-                    TIME=vars.DroneSensor().time, START=vars.DroneSensor().start,
-                    STALE=vars.DroneSensor().stale, HOW=vars.DroneSensor().how):
+    def DroneSensor(
+        VERSION=vars.DroneSensor().version,
+        UID=vars.DroneSensor().uid,
+        TYPE=vars.DroneSensor().type,
+        TIME=vars.DroneSensor().time,
+        START=vars.DroneSensor().start,
+        STALE=vars.DroneSensor().stale,
+        HOW=vars.DroneSensor().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -354,10 +456,15 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
-    def SPISensor(VERSION=vars.SPISensor().version,
-                    UID = vars.SPISensor().uid, TYPE=vars.SPISensor().type,
-                    TIME=vars.SPISensor().time, START=vars.SPISensor().start,
-                    STALE=vars.SPISensor().stale, HOW=vars.SPISensor().how):
+    def SPISensor(
+        VERSION=vars.SPISensor().version,
+        UID=vars.SPISensor().uid,
+        TYPE=vars.SPISensor().type,
+        TIME=vars.SPISensor().time,
+        START=vars.SPISensor().start,
+        STALE=vars.SPISensor().stale,
+        HOW=vars.SPISensor().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -369,12 +476,17 @@ class Event(FTSProtocolObject):
         event.point = Point()
         event.detail = Detail.SPISensor()
         return event
-    
+
     @staticmethod
-    def BitsImageryVideo(VERSION=vars.BitsImageryVideo().version,
-                    UID = vars.BitsImageryVideo().uid, TYPE=vars.BitsImageryVideo().type,
-                    TIME=vars.BitsImageryVideo().time, START=vars.BitsImageryVideo().start,
-                    STALE=vars.BitsImageryVideo().stale, HOW=vars.BitsImageryVideo().how):
+    def BitsImageryVideo(
+        VERSION=vars.BitsImageryVideo().version,
+        UID=vars.BitsImageryVideo().uid,
+        TYPE=vars.BitsImageryVideo().type,
+        TIME=vars.BitsImageryVideo().time,
+        START=vars.BitsImageryVideo().start,
+        STALE=vars.BitsImageryVideo().stale,
+        HOW=vars.BitsImageryVideo().how,
+    ):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -387,10 +499,11 @@ class Event(FTSProtocolObject):
         event.detail = Detail.BitsImageryVideo()
         return event
 
-    def getstart(self): 
-        return self.start 
-    
+    def getstart(self):
+        return self.start
+
         # start setter
+
     def setstart(self, start=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if start == None:
@@ -401,21 +514,22 @@ class Event(FTSProtocolObject):
         else:
             self.start = start
 
-    
         # how getter
-    def gethow(self): 
-        return self.how 
-    
-        
+
+    def gethow(self):
+        return self.how
+
     # how setter
-    def sethow(self, how=0):  
-        self.how = how 
+    def sethow(self, how=0):
+        self.how = how
 
         # uid getter
-    def getuid(self): 
-        return self.uid 
-    
+
+    def getuid(self):
+        return self.uid
+
         # uid setter
+
     def setuid(self, uid):
         if uid == None:
             self.uid = str(uuid.uuid1())
@@ -424,18 +538,22 @@ class Event(FTSProtocolObject):
             self.uid = uid
 
             # version getter
-    def getversion(self): 
-        return self.version 
-    
-        # version setter
-    def setversion(self, version):  
-        self.version = version 
 
-            # time getter
-    def gettime(self): 
-        return self.time 
-    
+    def getversion(self):
+        return self.version
+
+        # version setter
+
+    def setversion(self, version):
+        self.version = version
+
+        # time getter
+
+    def gettime(self):
+        return self.time
+
         # time setter
+
     def settime(self, time=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if time == None:
@@ -445,13 +563,15 @@ class Event(FTSProtocolObject):
             self.time = zulu
         else:
             self.time = time
-        
+
         # stale getter
-    def getstale(self): 
-        return self.stale 
-    
+
+    def getstale(self):
+        return self.stale
+
         # stale setter
-    def setstale(self, stale = None,staletime=60):
+
+    def setstale(self, stale=None, staletime=60):
         if stale == None:
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
@@ -464,11 +584,13 @@ class Event(FTSProtocolObject):
             self.stale = stale
 
             # type getter
-    def gettype(self): 
-        return self.type 
-    
+
+    def gettype(self):
+        return self.type
+
         # type setter
-    def settype(self, type=0):  
+
+    def settype(self, type=0):
         self.type = type
 
     def getpoint(self):

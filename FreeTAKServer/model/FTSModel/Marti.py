@@ -7,6 +7,7 @@ class counter:
     count = 0
     getter_called = False
 
+
 class Marti(FTSProtocolObject):
     __counter = counter()
 

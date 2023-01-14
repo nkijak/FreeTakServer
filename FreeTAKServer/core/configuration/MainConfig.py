@@ -14,7 +14,10 @@ API_VERSION = "1.9.5"
 PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+# FIXME all this needs a temp location? Override?
+# MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+
+MAINPATH = os.getenv('WORKSPACE') or currentPath+'../../../scratch'
 
 
 class MainConfig:
@@ -22,6 +25,7 @@ class MainConfig:
     this is the main configuration file and is the only one which
     should need to be changed
     """
+
     _instance = None
     _values = {}
 
@@ -276,7 +280,6 @@ class MainConfig:
             "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
             # address from which to publish messages by the integration manager
             "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
-
         },
         "Filesystem": {
             "FTS_COT_TO_DB": "SaveCoTToDB",
@@ -390,14 +393,16 @@ class MainConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
                     if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
                         value = yamlConfig[sect][attr]
-                        if attr.endswith(('PATH', 'DIR')):
+                        if attr.endswith(("PATH", "DIR")):
                             value = self.validate_and_sanitize_path(value)
                         # found a setting we can update the config
                         self.set(var_name, value=value)
 
     def validate_and_sanitize_path(self, path):
         # sanitize and validate any path specified in config
-        sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
+        sanitized_path = ROOTPATH + os.path.relpath(
+            os.path.normpath(os.path.join(os.sep, path)), os.sep
+        )
 
         if not os.access(sanitized_path, os.F_OK) or os.access(sanitized_path, os.W_OK):
             raise ValueError
@@ -459,4 +464,10 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y')
+    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in (
+        "true",
+        "t",
+        "1",
+        "yes",
+        "y",
+    )

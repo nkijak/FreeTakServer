@@ -5,19 +5,31 @@ import threading
 import uuid
 from typing import Dict, List
 
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.services.federation.external_data_handlers import (
     FederationProtobufConnectionHandler,
-    FederationProtobufDisconnectionHandler, FederationProtobufStandardHandler,
-    FederationProtobufValidationHandler)
-from FreeTAKServer.core.services.federation.federation_service_base import FederationServiceBase
+    FederationProtobufDisconnectionHandler,
+    FederationProtobufStandardHandler,
+    FederationProtobufValidationHandler,
+)
+from FreeTAKServer.core.services.federation.federation_service_base import (
+    FederationServiceBase,
+)
 from FreeTAKServer.core.services.federation.handlers import (
-    DataValidationHandler, DestinationValidationHandler, DisconnectHandler,
-    HandlerBase, SendConnectionDataHandler, SendDataHandler,
-    SendDisconnectionDataHandler, StopHandler)
+    DataValidationHandler,
+    DestinationValidationHandler,
+    DisconnectHandler,
+    HandlerBase,
+    SendConnectionDataHandler,
+    SendDataHandler,
+    SendDisconnectionDataHandler,
+    StopHandler,
+)
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.federate import Federate
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
@@ -25,7 +37,8 @@ from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstr
 
 loggingConstants = LoggingConstants(log_name="FTS_FederationServerService")
 logger = CreateLoggerController(
-    "FTS_FederationServerService", logging_constants=loggingConstants).getLogger()
+    "FTS_FederationServerService", logging_constants=loggingConstants
+).getLogger()
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -34,7 +47,6 @@ loggingConstants = LoggingConstants()
 
 
 class FederationServerService(FederationServiceBase):
-
     def __init__(self):
         self._define_command_responsibility_chain()
         self._define_connection_responsibility_chain()
@@ -51,7 +63,7 @@ class FederationServerService(FederationServiceBase):
         return self.user_dict.values()
 
     def add_service_user(self, user: FederatedEvent) -> None:
-        """ add a service user to this services user persistence mechanism
+        """add a service user to this services user persistence mechanism
 
         Returns: None
 
@@ -59,7 +71,7 @@ class FederationServerService(FederationServiceBase):
         self.user_dict[user.contact.uid] = user
 
     def remove_service_user(self, user: FederatedEvent):
-        """ remove a service user from this services user persistence mechanism
+        """remove a service user from this services user persistence mechanism
 
         Returns: None
 
@@ -71,8 +83,11 @@ class FederationServerService(FederationServiceBase):
 
     def _create_context(self) -> None:
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        self.context.load_cert_chain(config.federationCert, config.federationKey,
-                                     password=config.federationKeyPassword)
+        self.context.load_cert_chain(
+            config.federationCert,
+            config.federationKey,
+            password=config.federationKeyPassword,
+        )
 
     def _create_listener(self, ip: str, port: int) -> None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -83,7 +98,7 @@ class FederationServerService(FederationServiceBase):
         self.sel.register(ssock, selectors.EVENT_READ, data=None)
 
     def _define_external_data_responsibility_chain(self):
-        """ this method is responsible for defining the responsibility chain which handles external data
+        """this method is responsible for defining the responsibility chain which handles external data
         eg. data sent to FTS by a federate
 
         Returns:
@@ -95,17 +110,15 @@ class FederationServerService(FederationServiceBase):
         fed_proto_disconnect_handler.setNextHandler(fed_proto_standard_handler)
 
         fed_proto_connection_handler = FederationProtobufConnectionHandler()
-        fed_proto_connection_handler.setNextHandler(
-            fed_proto_disconnect_handler)
+        fed_proto_connection_handler.setNextHandler(fed_proto_disconnect_handler)
 
         fed_proto_validation_handler = FederationProtobufValidationHandler()
-        fed_proto_validation_handler.setNextHandler(
-            fed_proto_connection_handler)
+        fed_proto_validation_handler.setNextHandler(fed_proto_connection_handler)
 
         self.external_data_chain = fed_proto_validation_handler
 
     def _call_responsibility_chain(self, command):
-        """ this method is responsible for calling the responsibility chains for all command types:
+        """this method is responsible for calling the responsibility chains for all command types:
             service level commands; start, stop etc
             Connection level commands; close connection, open connection etc
             data level commands; send data x, each handler is responsible for some facet of data validation before
@@ -119,15 +132,19 @@ class FederationServerService(FederationServiceBase):
             self.service_chain.Handle(obj=self, command=command)
 
         # elif command.level == "CONNECTION":
-        elif isinstance(command, tuple) and (command[1] == "DELETE" or command[1] == "CREATE" or command[1] == "UPDATE"):
+        elif isinstance(command, tuple) and (
+            command[1] == "DELETE" or command[1] == "CREATE" or command[1] == "UPDATE"
+        ):
             self.connection_chain.Handle(obj=self, command=command)
 
         # elif command.level == "DATA":
-        if isinstance(command, SpecificCoTAbstract) or isinstance(command, ClientInformation):
+        if isinstance(command, SpecificCoTAbstract) or isinstance(
+            command, ClientInformation
+        ):
             self.data_chain.Handle(obj=self, command=command)
 
     def _define_service_responsibility_chain(self):
-        """ this method is responsible for defining the responsibility chain which will handle service level commands;
+        """this method is responsible for defining the responsibility chain which will handle service level commands;
             or commands which effect the entire service
 
         Returns: the entry handler for this responsibility chain
@@ -137,7 +154,7 @@ class FederationServerService(FederationServiceBase):
         self.service_chain = stop_handler
 
     def _define_connection_responsibility_chain(self):
-        """ this method is responsible for defining the responsibility chain which will handle connection level commands;
+        """this method is responsible for defining the responsibility chain which will handle connection level commands;
             or commands which effect the status of a connection at the socket level
 
         Returns: the entry handler for this responsibility chain
@@ -147,7 +164,7 @@ class FederationServerService(FederationServiceBase):
         self.connection_chain = disconnect_handler
 
     def _define_data_responsibility_chain(self):
-        """ this method is responsible for defining the responsibility chain which will handle data level commands;
+        """this method is responsible for defining the responsibility chain which will handle data level commands;
             or commands which transfer data to a client
 
         Returns: the entry handler for this responsibility chain
@@ -160,12 +177,10 @@ class FederationServerService(FederationServiceBase):
         destination_validation_handler.setNextHandler(send_data_handler)
 
         send_disconnection_data_handler = SendDisconnectionDataHandler()
-        send_disconnection_data_handler.setNextHandler(
-            destination_validation_handler)
+        send_disconnection_data_handler.setNextHandler(destination_validation_handler)
 
         send_connection_data_handler = SendConnectionDataHandler()
-        send_connection_data_handler.setNextHandler(
-            send_disconnection_data_handler)
+        send_connection_data_handler.setNextHandler(send_disconnection_data_handler)
 
         data_validation_handler = DataValidationHandler()
         data_validation_handler.setNextHandler(send_connection_data_handler)
@@ -186,15 +201,12 @@ class FederationServerService(FederationServiceBase):
 
         # first handler in chain of responsibility and should be called first
         self.m_SendConnectionHandler = SendConnectionDataHandler()
-        self.m_SendConnectionHandler.setNextHandler(
-            self.m_SendDisconnectionHandler)
+        self.m_SendConnectionHandler.setNextHandler(self.m_SendDisconnectionHandler)
 
     def main(self):
-        inbound_data_thread = threading.Thread(
-            target=self.inbound_data_handler)
+        inbound_data_thread = threading.Thread(target=self.inbound_data_handler)
         inbound_data_thread.start()
-        outbound_data_thread = threading.Thread(
-            target=self.outbound_data_handler)
+        outbound_data_thread = threading.Thread(target=self.outbound_data_handler)
         outbound_data_thread.start()
         inbound_data_thread.join()
 
@@ -203,7 +215,7 @@ class FederationServerService(FederationServiceBase):
         return specific_obj
 
     def outbound_data_handler(self):
-        """ this is the main process responsible for receiving data from federates and sharing
+        """this is the main process responsible for receiving data from federates and sharing
         with FTS core
 
         Returns:
@@ -225,7 +237,9 @@ class FederationServerService(FederationServiceBase):
                         self.send_command_to_core(serialized_data)
                     except Exception as e:
                         self.logger.warning(
-                            "there has been an exception thrown in the outbound_data_handler "+str(e))
+                            "there has been an exception thrown in the outbound_data_handler "
+                            + str(e)
+                        )
                     """if isinstance(SpecificCoTObj, SendOtherController):
                         detail = protobuf_object.event.other
                         protobuf_object.event.other = ''
@@ -239,7 +253,7 @@ class FederationServerService(FederationServiceBase):
 
     def send_command_to_core(self, serialized_data):
         if self.pipe.sender_queue.full():
-            print('queue full !!!')
+            print("queue full !!!")
         self.pipe.put(serialized_data)
 
     def inbound_data_handler(self):
@@ -295,14 +309,13 @@ class FederationServerService(FederationServiceBase):
         except OSError:
             return None
         except Exception as e:
-            self.logger.warning(
-                f"exception in receiving data from federate {str(e)}")
+            self.logger.warning(f"exception in receiving data from federate {str(e)}")
             self.disconnect_client(key.data.uid)
 
     def _accept_connection(self, sock) -> None:
         try:
             conn, addr = sock.accept()  # Should be ready to read
-            print('accepted connection from', addr)
+            print("accepted connection from", addr)
             conn.setblocking(False)
             data = Federate()
             data.conn = conn
@@ -316,7 +329,13 @@ class FederationServerService(FederationServiceBase):
             self.sel.register(conn, events, data=data)
             self.federates[data.uid] = data
 
-            self.db.create_ActiveFederation(id = data.uid, federate = "unknown", address = addr[0], port = addr[1], initiator = "Remote")
+            self.db.create_ActiveFederation(
+                id=data.uid,
+                federate="unknown",
+                address=addr[0],
+                port=addr[1],
+                initiator="Remote",
+            )
             return None
         except Exception as e:
             print(e)
@@ -327,7 +346,7 @@ class FederationServerService(FederationServiceBase):
         self.pipe = pipe
         self._create_context()
         self._create_listener(ip, port)
-        print('started federation server service')
+        print("started federation server service")
         self.main()
 
     def stop(self):

@@ -6,7 +6,9 @@ import os
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )

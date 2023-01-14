@@ -1,4 +1,5 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+
 #######################################################
 #
 # detail.py
@@ -21,7 +22,9 @@ from .Contact import Contact
 from .Emergency import Emergency
 from FreeTAKServer.model.FTSModel.Chat import Chat
 from FreeTAKServer.model.FTSModel.Remarks import Remarks
-from FreeTAKServer.model.FTSModel.Serverdestination import _Serverdestination as Serverdestination
+from FreeTAKServer.model.FTSModel.Serverdestination import (
+    _Serverdestination as Serverdestination,
+)
 from .Color import Color
 from FreeTAKServer.model.FTSModel.Usericon import Usericon
 from .Archive import Archive
@@ -32,9 +35,10 @@ from FreeTAKServer.model.FTSModel._Video import _Video
 
 
 class Detail(FTSProtocolObject):
-    """An optional element used to hold CoT sub-schema. empty element
-    """
+    """An optional element used to hold CoT sub-schema. empty element"""
+
     __index = -1
+
     def __init__(self):
         pass
 
@@ -120,7 +124,6 @@ class Detail(FTSProtocolObject):
         detail = Detail()
         detail.link = Link.DeleteVideo()
         return detail
-
 
     @staticmethod
     def UserUpdate():

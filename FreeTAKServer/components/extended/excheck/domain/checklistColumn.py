@@ -1,6 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
+
 class checklistColumn(CoTNode):
     def __init__(self, configuration, model):
         super().__init__(__class__.__name__, configuration, model)

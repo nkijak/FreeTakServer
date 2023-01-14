@@ -1,6 +1,8 @@
 import uuid
 
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
@@ -23,11 +25,13 @@ class SendEmergencyController:
         elif isinstance(json, EmergencyDelete):
             tempObject = event.emergecyOff()
         else:
-            raise Exception('unsupported object type passed under json argument')
+            raise Exception("unsupported object type passed under json argument")
         object = SendEmergency()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):
@@ -51,8 +55,8 @@ class SendEmergencyController:
         elif isinstance(json, EmergencyDelete):
             object.setuid(json.getuid())
             DatabaseController().remove_ActiveEmergency(query=f'uid = "{object.uid}"')
-            object.settype('b-a-o-can')
-            object.detail.emergency.setcancel('true')
+            object.settype("b-a-o-can")
+            object.detail.emergency.setcancel("true")
             return object
 
     def setCoTObject(self, CoTObject):

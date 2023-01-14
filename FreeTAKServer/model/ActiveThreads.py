@@ -15,4 +15,5 @@
 class ActiveThreads:  # pylint: disable=too-few-public-methods
     """This class is only a wrapper for the thread array, however in future can be expanded
     to abstract this variable with more complex functionality."""
+
     thread_array = []

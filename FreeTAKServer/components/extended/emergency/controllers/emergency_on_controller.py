@@ -56,7 +56,9 @@ class EmergencyOnController(DefaultBusinessRuleController):
             # the DefaultBusinessRuleController evaluate_request
             internal_action_mapper=emergency_action_mapper,
         )
-        self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
+        self.emergency_general_controller = EmergencyGeneralController(
+            request, response, sync_action_mapper, configuration
+        )
         self.emergency_general_controller.initialize(request, response)
 
     def execute(self, method=None):
@@ -100,7 +102,9 @@ class EmergencyOnController(DefaultBusinessRuleController):
             response = self.execute_sub_action("DictToNode")
 
             self.emergency_general_controller.initialize(self.request, self.response)
-            self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
+            self.emergency_general_controller.filter_by_distance(
+                response.get_value("model_object")
+            )
 
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)

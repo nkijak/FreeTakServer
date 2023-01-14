@@ -1,6 +1,8 @@
 from FreeTAKServer.model.SpecificCoT.SendRoute import SendRoute
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 import uuid
 from FreeTAKServer.model.FTSModel.Event import Event as event
@@ -9,8 +11,10 @@ from lxml import etree
 from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from geopy import Nominatim
+
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendSimpleCoTController").getLogger()
+
 
 class SendRouteController:
     def __init__(self, json):
@@ -20,7 +24,11 @@ class SendRouteController:
         object = SendRoute()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        object.setXmlString(etree.tostring(XmlSerializer().from_fts_object_to_format(object.modelObject)))
+        object.setXmlString(
+            etree.tostring(
+                XmlSerializer().from_fts_object_to_format(object.modelObject)
+            )
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object: event, json):
@@ -42,13 +50,16 @@ class SendRouteController:
             start.setpoint(f"{json.getlatitude()}, {json.getlongitude()}")
             start.setcallsign(json.getstartName())
             object.detail.setlink(start)
-            if json.gettimeout() != '':
+            if json.gettimeout() != "":
                 object.setstale(staletime=int(json.gettimeout()))
             else:
                 object.setstale(staletime=RestAPIVariables.defaultGeoObjectTimeout)
             return object
         except AttributeError as e:
-            raise Exception('a parameter has been passed which is not recognized with error: '+str(e))
+            raise Exception(
+                "a parameter has been passed which is not recognized with error: "
+                + str(e)
+            )
 
     def setCoTObject(self, CoTObject):
         self.CoTObject = CoTObject

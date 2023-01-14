@@ -11,7 +11,7 @@ class statusVariables:
 
     @classmethod
     def connection(cls):
-        cls.BATTERY = '100'
+        cls.BATTERY = "100"
         cls.READINESS = "true"
         return cls
 

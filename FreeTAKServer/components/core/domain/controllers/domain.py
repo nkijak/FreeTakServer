@@ -38,7 +38,9 @@ class Domain(Controller):
         """
         return node.add_child(child)
 
-    def create_node(self, configuration: Configuration, object_class_name: str, **kwargs) -> None:
+    def create_node(
+        self, configuration: Configuration, object_class_name: str, **kwargs
+    ) -> None:
         """this method creates a new node object
 
         Args:
@@ -46,7 +48,9 @@ class Domain(Controller):
             object_class_name (str): _description_
         """
         # allow the domain to be extended
-        self.domain = self._extend_domain(self.domain, getattr(kwargs, 'extended_domain', {}))
+        self.domain = self._extend_domain(
+            self.domain, getattr(kwargs, "extended_domain", {})
+        )
         # retrieve the original object class
         object_class = getattr(self.domain, object_class_name)
         # instantiate the object class
@@ -97,9 +101,18 @@ class Domain(Controller):
             ),
         )
 
-def get_first_child(self, node: Node, child_type: Type[Node], values: "dict[str, Any]", properties: "dict[str, Any]", use_regex: bool = True, **kwargs) -> Optional[Node]:
+
+def get_first_child(
+    self,
+    node: Node,
+    child_type: Type[Node],
+    values: "dict[str, Any]",
+    properties: "dict[str, Any]",
+    use_regex: bool = True,
+    **kwargs,
+) -> Optional[Node]:
     """Returns the first child of the given node that matches the given child type, values, and properties.
-    
+
     Args:
         node (Node): The node to get the first child of.
         child_type (Type[Node]): The type of the child to find.
@@ -107,50 +120,60 @@ def get_first_child(self, node: Node, child_type: Type[Node], values: "dict[str,
         properties (dict[str, Any]): The properties the child must have.
         use_regex (bool, optional): Whether to use regular expressions to match values and properties. Defaults to True.
         **kwargs: Additional keyword arguments.
-    
+
     Returns:
         Optional[Node]: The first child that matches the given child type, values, and properties, or None if no such child is found.
     """
-    self.response.set_value("first_child", node.get_first_child(child_type, values, properties, use_regex))
+    self.response.set_value(
+        "first_child", node.get_first_child(child_type, values, properties, use_regex)
+    )
+
 
 def get_next_sibling(self, node: Node, **kwargs) -> Optional[Node]:
     """Returns the next sibling of the given node.
-    
+
     Args:
         node (Node): The node to get the next sibling of.
         **kwargs: Additional keyword arguments.
-    
+
     Returns:
         Optional[Node]: The next sibling of the given node, or None if the node has no next sibling.
     """
     self.response.set_value("next_sibling", node.get_next_sibling())
 
-def get_num_children(self, node: Node, children_type: Optional[Type[Node]] = None, **kwargs) -> int:
+
+def get_num_children(
+    self, node: Node, children_type: Optional[Type[Node]] = None, **kwargs
+) -> int:
     """Returns the number of children the given node has.
-    
+
     Args:
         node (Node): The node to get the number of children of.
         children_type (Optional[Type[Node]], optional): The type of children to count. If not specified, all children are counted. Defaults to None.
         **kwargs: Additional keyword arguments.
-    
+
     Returns:
         int: The number of children the given node has.
     """
     self.response.set_value("num_children", node.get_num_children(children_type))
 
-def get_num_parents(self, node: Node, parent_types: Optional[List[Type[Node]]] = None, **kwargs) -> int:
+
+def get_num_parents(
+    self, node: Node, parent_types: Optional[List[Type[Node]]] = None, **kwargs
+) -> int:
     """Returns the number of parents the given node has.
-    
+
     Args:
         node (Node): The node to get the number of parents of.
         parent_types (Optional[List[Type[Node]]], optional): The types of parents to count. If not specified, all parents are counted. Defaults to None.
         **kwargs: Additional keyword arguments.
-    
+
     Returns:
         int: The number of parents the given node has.
     """
     self.response.set_value("num_parents", node.get_num_parents(parent_types))
-    
+
+
 def get_previous_sibling(self, node: Node) -> Optional[Node]:
     """Returns the previous sibling of the given node.
 
@@ -161,6 +184,7 @@ def get_previous_sibling(self, node: Node) -> Optional[Node]:
         Optional[Node]: The previous sibling of the given node, or None if the node has no previous sibling.
     """
     self.response.set_value("previous_sibling", node.get_previous_sibling())
+
 
 def get_parent(self, node: Node) -> Optional[Node]:
     """Returns the parent of the given node.

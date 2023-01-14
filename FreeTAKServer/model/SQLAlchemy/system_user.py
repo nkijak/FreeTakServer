@@ -8,7 +8,7 @@ from flask_login import UserMixin
 
 class SystemUser(Base, UserMixin):
 
-    __tablename__ = 'SystemUser'
+    __tablename__ = "SystemUser"
     uid = Column(String(80), primary_key=True)
     name = Column(String(15), nullable=False)
     token = Column(String(30), nullable=True)
@@ -23,7 +23,7 @@ class SystemUser(Base, UserMixin):
             # depending on whether value is an iterable or not, we must
             # unpack it's value (when **kwargs is request.form, some values
             # will be a 1-element list)
-            if hasattr(value, '__iter__') and not isinstance(value, str):
+            if hasattr(value, "__iter__") and not isinstance(value, str):
                 # the ,= unpack of a singleton fails PEP8 (travis flake8 test)
                 value = value[0]
 

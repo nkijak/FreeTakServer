@@ -6,7 +6,7 @@ from digitalpy.core.digipy_configuration.configuration import Configuration
 from ..configuration.emergency_constants import (
     DEST_SCHEMA,
     DEST_CLASS,
-    MAXIMUM_EMERGENCY_DISTANCE
+    MAXIMUM_EMERGENCY_DISTANCE,
 )
 
 from FreeTAKServer.components.core.domain.domain._event import Event
@@ -15,6 +15,7 @@ import pickle
 from geopy import distance
 
 config = MainConfig.instance()
+
 
 class EmergencyGeneralController(Controller):
     def __init__(
@@ -44,7 +45,7 @@ class EmergencyGeneralController(Controller):
             "serialized emergency message to format "
             + self.request.get_value("model_object_parser")
         )
-        
+
     def retrieve_users(self) -> dict:
         """get the available users"""
         with open(config.UserPersistencePath, "rb") as f:
@@ -53,7 +54,9 @@ class EmergencyGeneralController(Controller):
     def add_user_to_marti(self, emergency: Event, user: Event):
         """create a new marti dest for the given user to the provided emergency"""
         self.request.set_value("object_class_name", DEST_CLASS)
-        configuration = self.request.get_value("config_loader").find_configuration(DEST_SCHEMA)
+        configuration = self.request.get_value("config_loader").find_configuration(
+            DEST_SCHEMA
+        )
 
         self.request.set_value("configuration", configuration)
         sub_response = self.execute_sub_action("CreateNode")

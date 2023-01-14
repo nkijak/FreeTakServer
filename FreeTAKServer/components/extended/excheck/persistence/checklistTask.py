@@ -2,8 +2,8 @@ class checklistTask:
     def __init__(self):
         self.lineBreak = "false"
         self.number = 0
-        self.uid = ''
-        self.status = 'Pending'
+        self.uid = ""
+        self.status = "Pending"
 
     def setuid(self, uid):
         self.uid = uid

@@ -1,17 +1,24 @@
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
+from FreeTAKServer.core.configuration.DataPackageServerConstants import (
+    DataPackageServerConstants,
+)
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 
-from .DataPackageServer import (
-    FlaskFunctions, app, const, eventlet, init_config)
+from .DataPackageServer import FlaskFunctions, app, const, eventlet, init_config
 
 loggingConstants = LoggingConstants(log_name="FTS-TCP_DataPackage_Service")
-logger = CreateLoggerController("FTS-TCP_DataPackage_Service", logging_constants=loggingConstants).getLogger()
+logger = CreateLoggerController(
+    "FTS-TCP_DataPackage_Service", logging_constants=loggingConstants
+).getLogger()
+
 
 class TCPDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):
         try:
             from eventlet import wsgi
+
             global IP, HTTPPORT, PIPE
             IP = ip
             HTTPPORT = port
@@ -23,9 +30,12 @@ class TCPDataPackageService(FlaskFunctions):
             super().setHTTPPORT(HTTPPORT)
             super().setIP(IP)
             super().setPIPE(PIPE)
-            wsgi.server(eventlet.listen((DataPackageServerConstants().IP, HTTPPORT)), app)
-
+            wsgi.server(
+                eventlet.listen((DataPackageServerConstants().IP, HTTPPORT)), app
+            )
 
         except Exception as e:
-            logger.error('there has been an exception in Data Package service startup ' + str(e))
+            logger.error(
+                "there has been an exception in Data Package service startup " + str(e)
+            )
             return -1

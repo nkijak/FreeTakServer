@@ -1,5 +1,8 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.model.FTSModelVariables.ConnectionEntryVariables import ConnectionEntryVariables as vars
+from FreeTAKServer.model.FTSModelVariables.ConnectionEntryVariables import (
+    ConnectionEntryVariables as vars,
+)
+
 
 class ConnectionEntry(FTSProtocolObject):
     def __init__(self):
@@ -16,12 +19,19 @@ class ConnectionEntry(FTSProtocolObject):
         self.alias = None
 
     @staticmethod
-    def VideoStream(NETWORKTIMEOUT=vars.VideoStream().networkTimeout, UID=vars.VideoStream().uid,
-                    PATH=vars.VideoStream().path, PROTOCOL=vars.VideoStream().protocol,
-                    BUFFERTIME=vars.VideoStream().bufferTime, ADDRESS=vars.VideoStream().address,
-                    PORT=vars.VideoStream().port, ROVERPORT=vars.VideoStream().roverPort,
-                    RTSPRELIABLE=vars.VideoStream().rtspReliable,
-                    IGNOREEMBEDDEDKLV=vars.VideoStream().ignoreEmbeddedKLV, ALIAS=vars.VideoStream().alias, ):
+    def VideoStream(
+        NETWORKTIMEOUT=vars.VideoStream().networkTimeout,
+        UID=vars.VideoStream().uid,
+        PATH=vars.VideoStream().path,
+        PROTOCOL=vars.VideoStream().protocol,
+        BUFFERTIME=vars.VideoStream().bufferTime,
+        ADDRESS=vars.VideoStream().address,
+        PORT=vars.VideoStream().port,
+        ROVERPORT=vars.VideoStream().roverPort,
+        RTSPRELIABLE=vars.VideoStream().rtspReliable,
+        IGNOREEMBEDDEDKLV=vars.VideoStream().ignoreEmbeddedKLV,
+        ALIAS=vars.VideoStream().alias,
+    ):
         connectionentry = ConnectionEntry()
         connectionentry.setnetworkTimeout(NETWORKTIMEOUT)
         connectionentry.setuid(UID)
@@ -37,10 +47,14 @@ class ConnectionEntry(FTSProtocolObject):
         return connectionentry
 
     @staticmethod
-    def BitsImageryVideo(UID=vars.VideoStream().uid,
-                        PATH=vars.VideoStream().path, PROTOCOL=vars.VideoStream().protocol,
-                        ADDRESS=vars.VideoStream().address,PORT=vars.VideoStream().port,
-                        ALIAS=vars.VideoStream().alias):
+    def BitsImageryVideo(
+        UID=vars.VideoStream().uid,
+        PATH=vars.VideoStream().path,
+        PROTOCOL=vars.VideoStream().protocol,
+        ADDRESS=vars.VideoStream().address,
+        PORT=vars.VideoStream().port,
+        ALIAS=vars.VideoStream().alias,
+    ):
         connectionentry = ConnectionEntry()
         connectionentry.setuid(UID)
         connectionentry.setpath(PATH)
@@ -51,67 +65,67 @@ class ConnectionEntry(FTSProtocolObject):
         return connectionentry
 
     def getnetworkTimeout(self):
-            return self.networkTimeout
+        return self.networkTimeout
 
     def setnetworkTimeout(self, networkTimeout):
         self.networkTimeout = networkTimeout
 
     def getuid(self):
-            return self.uid
+        return self.uid
 
     def setuid(self, uid):
         self.uid = uid
 
     def getpath(self):
-            return self.path
+        return self.path
 
     def setpath(self, path):
         self.path = path
 
     def getprotocol(self):
-            return self.protocol
+        return self.protocol
 
     def setprotocol(self, protocol):
         self.protocol = protocol
 
     def getbufferTime(self):
-            return self.bufferTime
+        return self.bufferTime
 
     def setbufferTime(self, bufferTime):
         self.bufferTime = bufferTime
 
     def getaddress(self):
-            return self.address
+        return self.address
 
     def setaddress(self, address):
         self.address = address
 
     def getport(self):
-            return self.port
+        return self.port
 
     def setport(self, port):
         self.port = port
 
     def getroverPort(self):
-            return self.roverPort
+        return self.roverPort
 
     def setroverPort(self, roverPort):
         self.roverPort = roverPort
 
     def getrtspReliable(self):
-            return self.rtspReliable
+        return self.rtspReliable
 
     def setrtspReliable(self, rtspReliable):
         self.rtspReliable = rtspReliable
 
     def getignoreEmbeddedKLV(self):
-            return self.ignoreEmbeddedKLV
+        return self.ignoreEmbeddedKLV
 
     def setignoreEmbeddedKLV(self, ignoreEmbeddedKLV):
         self.ignoreEmbeddedKLV = ignoreEmbeddedKLV
 
     def getalias(self):
-            return self.alias
+        return self.alias
 
     def setalias(self, alias):
         self.alias = alias

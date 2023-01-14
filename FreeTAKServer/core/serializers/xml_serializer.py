@@ -2,26 +2,50 @@ from FreeTAKServer.core.serializers.serializer_abstract import SerializerAbstrac
 from FreeTAKServer.model.FTSModel.Event import Event
 from typing import NewType, List
 from defusedxml import ElementTree as etree
-from lxml.etree import Element   # pylint: disable=no-name-in-module
+from lxml.etree import Element  # pylint: disable=no-name-in-module
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 
 loggingConstants = LoggingConstants(log_name="FTS_XmlSerializer")
-logger = CreateLoggerController("FTS_XmlSerializer", logging_constants=loggingConstants).getLogger()
+logger = CreateLoggerController(
+    "FTS_XmlSerializer", logging_constants=loggingConstants
+).getLogger()
 
 loggingConstants = LoggingConstants()
 
 
 class XmlSerializer(SerializerAbstract):
     """this class is responsible for converting XML to domain objects"""
-    __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "_chat": "__chat", "__chat": "_chat", "_video": "__video", "__video":"_video", "connectionentry":"ConnectionEntry"}
-    __exception_mapping_dict_objs = {'_group': '__group', '__group': "_group", "chat": "__chat", "_chat": "__chat", '_serverdestination': '__serverdestination', "_video": "__video", "__video":"_video"}
 
-    __ftsObjectType = NewType('ftsObject', FTSProtocolObject)
+    __exception_mapping_dict = {
+        "_group": "__group",
+        "_serverdestination": "__serverdestination",
+        "__group": "_group",
+        "__serverdestination": "_serverdestination",
+        "chat": "__chat",
+        "_chat": "__chat",
+        "__chat": "_chat",
+        "_video": "__video",
+        "__video": "_video",
+        "connectionentry": "ConnectionEntry",
+    }
+    __exception_mapping_dict_objs = {
+        "_group": "__group",
+        "__group": "_group",
+        "chat": "__chat",
+        "_chat": "__chat",
+        "_serverdestination": "__serverdestination",
+        "_video": "__video",
+        "__video": "_video",
+    }
+
+    __ftsObjectType = NewType("ftsObject", FTSProtocolObject)
 
     def from_format_to_fts_object(self, object: str, FTSObject: Event) -> Event:
-        """ convert xmlstring to fts_object
+        """convert xmlstring to fts_object
         this function takes as input an xmlstring and it's corresponding FTSObject
         all data from the xmlstring is transfered to the FTS object and returned
         :param object:
@@ -33,20 +57,39 @@ class XmlSerializer(SerializerAbstract):
         return self._xml_attribs_to_fts_properties(FTSObject, element)
 
     def _xml_attribs_to_fts_properties(self, FTSObject, element):
-        if element.text is not None and not element.text.isspace():  # this statement handles instances where tags have text eg. <example> text </example>
+        if (
+            element.text is not None and not element.text.isspace()
+        ):  # this statement handles instances where tags have text eg. <example> text </example>
             try:
                 setters = self._get_fts_object_var_setter(FTSObject, "INTAG")
                 setter = self._get_method_in_method_list(setters, element.tag)
                 setter(element.text)
             except AttributeError as e:
-                logger.info("the following property is missing from the FTS model missing cot: " + str(etree.tostring(element)) + " attr: "+str("INTAG")+" please open an issue on the FTS github page with this message so that we can address it in future releases")
-        for key, var in element.attrib.items():  # this statement handles iterating through and applying all element attributes to the model
+                logger.info(
+                    "the following property is missing from the FTS model missing cot: "
+                    + str(etree.tostring(element))
+                    + " attr: "
+                    + str("INTAG")
+                    + " please open an issue on the FTS github page with this message so that we can address it in future releases"
+                )
+        for (
+            key,
+            var,
+        ) in (
+            element.attrib.items()
+        ):  # this statement handles iterating through and applying all element attributes to the model
             try:
                 setters = self._get_fts_object_var_setter(FTSObject, key)
                 setter = self._get_method_in_method_list(setters, element.tag)
                 setter(var)
             except AttributeError as e:
-                logger.info("the following property is missing from the FTS model missing cot: " + str(etree.tostring(element)) + " attr: "+str(key)+" please open an issue on the FTS github page with this message so that we can address it in future releases")
+                logger.info(
+                    "the following property is missing from the FTS model missing cot: "
+                    + str(etree.tostring(element))
+                    + " attr: "
+                    + str(key)
+                    + " please open an issue on the FTS github page with this message so that we can address it in future releases"
+                )
 
         return FTSObject
 
@@ -62,10 +105,17 @@ class XmlSerializer(SerializerAbstract):
                 fts_obj = getter()
                 setter(self.from_format_to_fts_object(etree.tostring(subelem), fts_obj))
             except AttributeError:
-                logger.info("the following tag is missing from the FTS model, missing cot "+str(etree.tostring(element)) + " missing tag name: "+str(subelem.tag))
+                logger.info(
+                    "the following tag is missing from the FTS model, missing cot "
+                    + str(etree.tostring(element))
+                    + " missing tag name: "
+                    + str(subelem.tag)
+                )
 
-    def from_fts_object_to_format(self, FTSObject: Event, root: Element = None) -> Element:
-        """ serialize a FTS_object to an etree Element
+    def from_fts_object_to_format(
+        self, FTSObject: Event, root: Element = None
+    ) -> Element:
+        """serialize a FTS_object to an etree Element
         this function takes as parameters any FTSObject and will convert
         into the cooresponding etree element which can be converted into
         an xmlstring or left as a python object
@@ -94,21 +144,24 @@ class XmlSerializer(SerializerAbstract):
                     key = self.__exception_mapping_dict_objs[key]
                 root.remove(root.find(key))
                 root.append(updatedValue)
-            elif isinstance(value, list) and not '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            elif (
+                isinstance(value, list)
+                and not "_" + FTSObject.__class__.__name__.lower() + "__" in key.lower()
+            ):
                 index = 0
                 for obj in value:
                     self.from_fts_object_to_format(obj, root.findall(key)[index])
                     index += 1
 
     def _fts_object_attrib_to_xml_attrib(self, FTSObject, root):
-        if root.text == 'DATA':
+        if root.text == "DATA":
             getters = self._get_fts_object_var_getter(FTSObject, "INTAG")
             getter = self._get_method_in_method_list(getters, root.tag)
             tempvar = getter()
             root.text = tempvar
         for key, var in root.attrib.items():
             """if key in self.__exception_mapping_dict:
-                key = self.__exception_mapping_dict[key]"""
+            key = self.__exception_mapping_dict[key]"""
             getters = self._get_fts_object_var_getter(FTSObject, key)
             getter = self._get_method_in_method_list(getters, root.tag)
             tempvar = getter()
@@ -116,29 +169,46 @@ class XmlSerializer(SerializerAbstract):
                 root.attrib[key] = str(tempvar)
         return root
 
-    def _get_method_in_method_list(self, method_list: List[callable], expected_class_name: str) -> callable:
+    def _get_method_in_method_list(
+        self, method_list: List[callable], expected_class_name: str
+    ) -> callable:
         if expected_class_name.lower() in self.__exception_mapping_dict:
-            expected_class_name = self.__exception_mapping_dict[expected_class_name.lower()]
+            expected_class_name = self.__exception_mapping_dict[
+                expected_class_name.lower()
+            ]
         if len(method_list) == 1:
             return method_list[0]
 
         elif len(method_list) > 0:
             for method in method_list:
                 # required due to pythons privacy conventions
-                if method.__self__.__class__.__name__.lower() in self.__exception_mapping_dict:
-                    name = self.__exception_mapping_dict[method.__self__.__class__.__name__.lower()]
+                if (
+                    method.__self__.__class__.__name__.lower()
+                    in self.__exception_mapping_dict
+                ):
+                    name = self.__exception_mapping_dict[
+                        method.__self__.__class__.__name__.lower()
+                    ]
                 else:
                     name = method.__self__.__class__.__name__.lower()
-                if name == expected_class_name.lower() or method.__self__.__class__.__name__.lower() == expected_class_name.lower():
+                if (
+                    name == expected_class_name.lower()
+                    or method.__self__.__class__.__name__.lower()
+                    == expected_class_name.lower()
+                ):
                     return method
                 else:
                     pass
-            raise AttributeError(expected_class_name + ' does not have specified attribute')
+            raise AttributeError(
+                expected_class_name + " does not have specified attribute"
+            )
         else:
-            raise AttributeError(expected_class_name + ' does not have specified attribute')
+            raise AttributeError(
+                expected_class_name + " does not have specified attribute"
+            )
 
     def _from_fts_object_to_format_body(self, FTSObject: __ftsObjectType) -> Element:
-        """ converts FTS object to xml outline without data
+        """converts FTS object to xml outline without data
 
         this method takes an FTSObject instance and converts it to an xml message
         without populating it with any actual data.
@@ -157,7 +227,7 @@ class XmlSerializer(SerializerAbstract):
         variables = vars(FTSObject)
         # iterate variables and create attributes
         for key, value in variables.items():
-            if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            if "_" + FTSObject.__class__.__name__.lower() + "__" in key.lower():
                 continue
             if issubclass(type(value), FTSProtocolObject):
                 try:

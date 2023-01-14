@@ -1,12 +1,17 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.model.FTSModelVariables.SubmitterVariables import SubmitterVariables as vars
+from FreeTAKServer.model.FTSModelVariables.SubmitterVariables import (
+    SubmitterVariables as vars,
+)
+
 
 class Submitter(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None
 
     @staticmethod
-    def ExcheckUpdate(INTAG=vars.ExcheckUpdate().INTAG, ):
+    def ExcheckUpdate(
+        INTAG=vars.ExcheckUpdate().INTAG,
+    ):
         submitter = Submitter()
 
         submitter.setINTAG(INTAG)

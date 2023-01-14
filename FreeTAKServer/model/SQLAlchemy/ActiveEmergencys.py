@@ -12,10 +12,10 @@ from sqlalchemy import ForeignKey
 
 
 class ActiveEmergencys(Base):  # pylint: disable=too-few-public-methods
-    __tablename__ = 'ActiveEmergencys'
+    __tablename__ = "ActiveEmergencys"
 
     PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
 
     event = relationship("Event")
 
-    uid = Column(String(100), ForeignKey('Event.uid'))
+    uid = Column(String(100), ForeignKey("Event.uid"))

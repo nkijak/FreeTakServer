@@ -6,10 +6,8 @@ from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 
 from .emergency_general_controller import EmergencyGeneralController
-from ..configuration.emergency_constants import (
-    EMERGENCY_ALERT,
-    BASE_OBJECT_NAME
-)
+from ..configuration.emergency_constants import EMERGENCY_ALERT, BASE_OBJECT_NAME
+
 
 class EmergencySenderController(Controller):
     """this class is responsible for transmitting emergencies, however it is not used as all routing
@@ -25,8 +23,10 @@ class EmergencySenderController(Controller):
         sync_action_mapper: ActionMapper,
     ):
         super().__init__(request, response, emergency_action_mapper, configuration)
-        self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
-    
+        self.emergency_general_controller = EmergencyGeneralController(
+            request, response, sync_action_mapper, configuration
+        )
+
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response

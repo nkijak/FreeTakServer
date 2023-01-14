@@ -18,7 +18,9 @@ from digitalpy.core.domain.node import Node
 from digitalpy.core.main.object_factory import ObjectFactory
 
 from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
-from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
+from FreeTAKServer.core.connection.ActiveThreadsController import (
+    ActiveThreadsController,
+)
 from FreeTAKServer.core.connection.ClientInformationController import (
     ClientInformationController,
 )

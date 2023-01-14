@@ -1,5 +1,6 @@
 # !/usr/bin/python
 import subprocess
+
 try:
     from OpenSSL import crypto
 except ImportError:
@@ -28,18 +29,27 @@ import hashlib
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
 
+
 def _utc_time_from_datetime(date):
-    fmt = '%y%m%d%H%M'
+    fmt = "%y%m%d%H%M"
     if date.second > 0:
-        fmt += '%S'
+        fmt += "%S"
     if date.tzinfo is None:
-        fmt += 'Z'
+        fmt += "Z"
     else:
-        fmt += '%z'
+        fmt += "%z"
     return date.strftime(fmt)
 
 
-def revoke_certificate(username, revoked_file=None, ca_pem = config.CA, ca_key = config.CAkey, crl_file = config.CRLFile, user_cert_dir=config.certsPath, crl_path=config.CRLFile):
+def revoke_certificate(
+    username,
+    revoked_file=None,
+    ca_pem=config.CA,
+    ca_key=config.CAkey,
+    crl_file=config.CRLFile,
+    user_cert_dir=config.certsPath,
+    crl_path=config.CRLFile,
+):
     """
     Function to create/update a CRL with revoked user certificates
     :param ca_pem: The path to your CA PEM file
@@ -58,19 +68,23 @@ def revoke_certificate(username, revoked_file=None, ca_pem = config.CA, ca_key =
     from datetime import datetime
 
     data = {}
-    certificate = crypto.load_certificate(crypto.FILETYPE_PEM, open(ca_pem, mode="rb").read())
-    private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(ca_key, mode="r").read())
+    certificate = crypto.load_certificate(
+        crypto.FILETYPE_PEM, open(ca_pem, mode="rb").read()
+    )
+    private_key = crypto.load_privatekey(
+        crypto.FILETYPE_PEM, open(ca_key, mode="r").read()
+    )
     if crl_path and os.path.exists(crl_path):
         crl = crypto.load_crl(crypto.FILETYPE_PEM, open(crl_path, mode="rb").read())
     else:
         crl = crypto.CRL()
         if revoked_file and os.path.exists(revoked_file):
-            with open(revoked_file, 'r') as json_file:
+            with open(revoked_file, "r") as json_file:
                 data = json.load(json_file)
 
     for cert in os.listdir(user_cert_dir):
         if cert.lower() == f"{username.lower()}.pem":
-            with open(config.certsPath+'/'+cert, 'rb') as cert:
+            with open(config.certsPath + "/" + cert, "rb") as cert:
                 revoked_cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert.read())
             data[str(revoked_cert.get_serial_number())] = username
             break
@@ -79,14 +93,14 @@ def revoke_certificate(username, revoked_file=None, ca_pem = config.CA, ca_key =
         revoked_time = _utc_time_from_datetime(datetime.utcnow())
         revoked = crypto.Revoked()
         revoked.set_serial(format(int(key), "02x").encode())
-        revoked.set_rev_date(bytes(revoked_time, encoding='utf8'))
+        revoked.set_rev_date(bytes(revoked_time, encoding="utf8"))
         crl.add_revoked(revoked)
     crl.sign(certificate, private_key, b"sha256")
     if revoked_file:
-        with open(revoked_file, 'w+') as json_file:
+        with open(revoked_file, "w+") as json_file:
             json.dump(data, json_file)
 
-    with open(crl_file, 'wb') as f:
+    with open(crl_file, "wb") as f:
         f.write(crl.export(cert=certificate, key=private_key, digest=b"sha256"))
 
     delete = 0
@@ -114,28 +128,38 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
     """
     file_hash = hashlib.sha256()
     block_size = 65536
-    with open(dp_name, 'rb') as f:
+    with open(dp_name, "rb") as f:
         fb = f.read(block_size)
         while len(fb) > 0:
             file_hash.update(fb)
             fb = f.read(block_size)
 
-    with open(dp_name, 'rb') as f:
+    with open(dp_name, "rb") as f:
         s = requests.Session()
-        r = s.post(f'http://{server}:8080/Marti/sync/missionupload?hash={file_hash.hexdigest()}'
-                   f'&filename={dp_name}'
-                   f'&creatorUid=atakofthecerts',
-                   files={"assetfile": f.read()},
-                   headers={'Expect': '100-continue'})
+        r = s.post(
+            f"http://{server}:8080/Marti/sync/missionupload?hash={file_hash.hexdigest()}"
+            f"&filename={dp_name}"
+            f"&creatorUid=atakofthecerts",
+            files={"assetfile": f.read()},
+            headers={"Expect": "100-continue"},
+        )
         if r.status_code == 200:
-            p_r = s.put(f'http://{server}:8080/Marti/api/sync/metadata/{file_hash.hexdigest()}/tool')
+            p_r = s.put(
+                f"http://{server}:8080/Marti/api/sync/metadata/{file_hash.hexdigest()}/tool"
+            )
             return True
         else:
             print("Something went wrong uploading DataPackage!")
             return False
 
-def generate_standard_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
-                 cert_password: str = config.password, ssl_port: str = "8089") -> None:
+
+def generate_standard_zip(
+    server_address: str = None,
+    server_filename: str = "server.p12",
+    user_filename: str = "Client.p12",
+    cert_password: str = config.password,
+    ssl_port: str = "8089",
+) -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.
@@ -145,7 +169,8 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
-    pref_file_template = Template("""<?xml version='1.0' encoding='ASCII' standalone='yes'?>
+    pref_file_template = Template(
+        """<?xml version='1.0' encoding='ASCII' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
             <entry key="count" class="class java.lang.Integer">1</entry>
@@ -161,9 +186,11 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
             <entry key="certificateLocation" class="class java.lang.String">/cert/{{ user_filename }}</entry>
         </preference>
     </preferences>
-    """)
+    """
+    )
 
-    manifest_file_template = Template("""<MissionPackageManifest version="2">
+    manifest_file_template = Template(
+        """<MissionPackageManifest version="2">
        <Configuration>
           <Parameter name="uid" value="{{ uid }}"/>
           <Parameter name="name" value="FreeTAKServer_{{ server }}"/>
@@ -175,7 +202,8 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
           <Content ignore="false" zipEntry="cert/{{ user_filename }}"/>
        </Contents>
     </MissionPackageManifest>
-    """)
+    """
+    )
 
     username = user_filename[:-4]
     random_id = uuid.uuid4()
@@ -184,31 +212,48 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
         server_address = socket.gethostbyname(hostname)
     else:
         server_address = config.UserConnectionIP
-    pref = pref_file_template.render(server=server_address, server_filename=server_filename,
-                                     user_filename=user_filename, cert_password=cert_password,
-                                     port=str(config.SSLCoTServicePort))
-    man = manifest_file_template.render(uid=random_id, server=server_address, server_filename=server_filename,
-                                        user_filename=user_filename)
-    with open('fts.pref', 'w') as pref_file:
+    pref = pref_file_template.render(
+        server=server_address,
+        server_filename=server_filename,
+        user_filename=user_filename,
+        cert_password=cert_password,
+        port=str(config.SSLCoTServicePort),
+    )
+    man = manifest_file_template.render(
+        uid=random_id,
+        server=server_address,
+        server_filename=server_filename,
+        user_filename=user_filename,
+    )
+    with open("fts.pref", "w") as pref_file:
         pref_file.write(pref)
-    with open('manifest.xml', 'w') as manifest_file:
+    with open("manifest.xml", "w") as manifest_file:
         manifest_file.write(man)
     copyfile(config.p12Dir, server_filename)
     copyfile(pathlib.Path(config.certsPath, user_filename), pathlib.Path(user_filename))
     with zipfile.ZipFile(
-        pathlib.PurePath(pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip")),
-        mode='w',
-        compresslevel=zipfile.ZIP_DEFLATED) as zipf:
+        pathlib.PurePath(
+            pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip")
+        ),
+        mode="w",
+        compresslevel=zipfile.ZIP_DEFLATED,
+    ) as zipf:
 
-        zipf.write('fts.pref')
-        zipf.write('manifest.xml')
+        zipf.write("fts.pref")
+        zipf.write("manifest.xml")
         zipf.write(user_filename)
         zipf.write(server_filename)
-    os.remove('fts.pref')
-    os.remove('manifest.xml')
+    os.remove("fts.pref")
+    os.remove("manifest.xml")
 
-def generate_wintak_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
-                 cert_password: str = config.password, ssl_port: str = "8089") -> None:
+
+def generate_wintak_zip(
+    server_address: str = None,
+    server_filename: str = "server.p12",
+    user_filename: str = "Client.p12",
+    cert_password: str = config.password,
+    ssl_port: str = "8089",
+) -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.
@@ -218,7 +263,8 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
-    pref_file_template = Template("""<?xml version='1.0' standalone='yes'?>
+    pref_file_template = Template(
+        """<?xml version='1.0' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
             <entry key="count" class="class java.lang.Integer">1</entry>
@@ -234,9 +280,11 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
             <entry key="certificateLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/{{ user_filename }}</entry>
         </preference>
     </preferences>
-    """)
+    """
+    )
 
-    manifest_file_template = Template("""<MissionPackageManifest version="2">
+    manifest_file_template = Template(
+        """<MissionPackageManifest version="2">
        <Configuration>
           <Parameter name="uid" value="{{ uid }}"/>
           <Parameter name="name" value="FreeTAKServer_{{ server }}"/>
@@ -248,9 +296,11 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
           <Content ignore="false" zipEntry="{{ folder }}/{{ user_filename }}"/>
        </Contents>
     </MissionPackageManifest>
-    """)
+    """
+    )
 
-    manifest_file_parent_template = Template("""<MissionPackageManifest version="2">
+    manifest_file_parent_template = Template(
+        """<MissionPackageManifest version="2">
            <Configuration>
               <Parameter name="uid" value="{{ uid }}"/>
               <Parameter name="name" value="FreeTAKServer_{{ server }}_DP"/>
@@ -259,7 +309,8 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
               <Content ignore="false" zipEntry="{{ folder }}/{{ internal_dp_name }}.zip"/>
            </Contents>
         </MissionPackageManifest>
-        """)
+        """
+    )
     username = secure_filename(user_filename[:-4])
     random_id = uuid.uuid4()
     new_uid = uuid.uuid4()
@@ -270,29 +321,44 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
         server_address = socket.gethostbyname(hostname)
     else:
         server_address = config.UserConnectionIP
-    pref = pref_file_template.render(server=server_address, server_filename=server_filename,
-                                     user_filename=user_filename, cert_password=cert_password,
-                                     port=str(config.SSLCoTServicePort))
-    man = manifest_file_template.render(uid=random_id, server=server_address, server_filename=server_filename,
-                                        user_filename=user_filename, folder=folder)
-    man_parent = manifest_file_parent_template.render(uid=new_uid, server=server_address,
-                                                      folder=parentfolder,
-                                                      internal_dp_name=f"{username.replace('./', '')}")
+    pref = pref_file_template.render(
+        server=server_address,
+        server_filename=server_filename,
+        user_filename=user_filename,
+        cert_password=cert_password,
+        port=str(config.SSLCoTServicePort),
+    )
+    man = manifest_file_template.render(
+        uid=random_id,
+        server=server_address,
+        server_filename=server_filename,
+        user_filename=user_filename,
+        folder=folder,
+    )
+    man_parent = manifest_file_parent_template.render(
+        uid=new_uid,
+        server=server_address,
+        folder=parentfolder,
+        internal_dp_name=f"{username.replace('./', '')}",
+    )
     if not os.path.exists("./" + folder):
         os.makedirs("./" + folder)
     if not os.path.exists("./MANIFEST"):
         os.makedirs("./MANIFEST")
-    with open('./' + folder + '/fts.pref', 'w') as pref_file:
+    with open("./" + folder + "/fts.pref", "w") as pref_file:
         pref_file.write(pref)
-    with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
+    with open("./MANIFEST/manifest.xml", "w") as manifest_file:
         manifest_file.write(man)
     copyfile(config.p12Dir, "./" + folder + "/" + server_filename)
-    copyfile(pathlib.Path(config.certsPath, user_filename), pathlib.Path(folder, user_filename))
-    zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk('./' + folder):
+    copyfile(
+        pathlib.Path(config.certsPath, user_filename),
+        pathlib.Path(folder, user_filename),
+    )
+    zipf = zipfile.ZipFile(f"{username}.zip", "w", zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk("./" + folder):
         for file in files:
             zipf.write(os.path.join(root, file))
-    for root, dirs, files in os.walk('./MANIFEST'):
+    for root, dirs, files in os.walk("./MANIFEST"):
         for file in files:
             zipf.write(os.path.join(root, file))
     zipf.close()
@@ -303,15 +369,23 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
         os.makedirs("./" + parentfolder)
     if not os.path.exists("./MANIFEST"):
         os.makedirs("./MANIFEST")
-    with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
+    with open("./MANIFEST/manifest.xml", "w") as manifest_parent:
         manifest_parent.write(man_parent)
     copyfile(f"{username}.zip", pathlib.Path(parentfolder, f"{username}.zip"))
-    zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk('./' + parentfolder):
+    zipp = zipfile.ZipFile(
+        str(
+            pathlib.PurePath(
+                pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip")
+            )
+        ),
+        "w",
+        zipfile.ZIP_DEFLATED,
+    )
+    for root, dirs, files in os.walk("./" + parentfolder):
         for file in files:
             name = str(pathlib.PurePath(pathlib.Path(root), pathlib.Path(file)))
             zipp.write(name)
-    for root, dirs, files in os.walk('./MANIFEST'):
+    for root, dirs, files in os.walk("./MANIFEST"):
         for file in files:
             zipp.write(os.path.join(root, file))
     zipp.close()
@@ -340,7 +414,7 @@ class AtakOfTheCerts:
         """
         Generate a CA certificate
         """
-        if (pathlib.Path(config.certsPath, 'ca.key').exists()):
+        if pathlib.Path(config.certsPath, "ca.key").exists():
             print("CA found locally, not generating a new one")
             return
 
@@ -359,8 +433,12 @@ class AtakOfTheCerts:
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(expiry_time_secs)
         cert.set_issuer(cert.get_subject())
-        cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
+        cert.add_extensions(
+            [
+                crypto.X509Extension(b"basicConstraints", False, b"CA:TRUE"),
+                crypto.X509Extension(b"keyUsage", False, b"keyCertSign, cRLSign"),
+            ]
+        )
         cert.set_pubkey(ca_key)
         cert.sign(ca_key, "sha256")
 
@@ -376,7 +454,7 @@ class AtakOfTheCerts:
         crl = crypto.CRL()
         crl.sign(cert, ca_key, b"sha256")
 
-        with open(config.CRLFile, 'wb') as f:
+        with open(config.CRLFile, "wb") as f:
             f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
 
         delete = 0
@@ -408,8 +486,13 @@ class AtakOfTheCerts:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
             f.close()
 
-    def _generate_certificate(self, common_name: str, p12path: str, pempath: str = config.pemDir,
-                              expiry_time_secs: int = 31536000) -> None:
+    def _generate_certificate(
+        self,
+        common_name: str,
+        p12path: str,
+        pempath: str = config.pemDir,
+        expiry_time_secs: int = 31536000,
+    ) -> None:
         """
         Create a certificate and p12 file
         :param cn: Common Name for certificate
@@ -418,8 +501,12 @@ class AtakOfTheCerts:
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
         if not os.path.exists(pempath):
-            ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
-            ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
+            ca_key = crypto.load_privatekey(
+                crypto.FILETYPE_PEM, open(self.cakeypath).read()
+            )
+            ca_pem = crypto.load_certificate(
+                crypto.FILETYPE_PEM, open(self.capempath, "rb").read()
+            )
             serial_number = random.getrandbits(64)
             chain = (ca_pem,)
             cert = crypto.X509()
@@ -435,8 +522,8 @@ class AtakOfTheCerts:
             p12.set_privatekey(self.key)
             p12.set_certificate(cert)
             p12.set_ca_certificates(tuple(chain))
-            p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
-            with open(p12path, 'wb') as p12file:
+            p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding="UTF-8"))
+            with open(p12path, "wb") as p12file:
                 p12file.write(p12data)
 
             if os.path.exists(pempath):
@@ -447,18 +534,26 @@ class AtakOfTheCerts:
                 f.close()
         else:
             pass
-    def bake(self, common_name: str, cert: str = "user", expiry_time_secs: int = 31536000) -> None:
+
+    def bake(
+        self, common_name: str, cert: str = "user", expiry_time_secs: int = 31536000
+    ) -> None:
         """
         Wrapper for creating certificate and all files needed
         :param common_name: Common Name of the the certificate
         :param cert: Type of cert being created "user" or "server"
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        keypath = pathlib.Path(config.certsPath,f"{common_name}.key")
-        pempath = pathlib.Path(config.certsPath,f"{common_name}.pem")
-        p12path = pathlib.Path(config.certsPath,f"{common_name}.p12")
+        keypath = pathlib.Path(config.certsPath, f"{common_name}.key")
+        pempath = pathlib.Path(config.certsPath, f"{common_name}.pem")
+        p12path = pathlib.Path(config.certsPath, f"{common_name}.p12")
         self._generate_key(keypath)
-        self._generate_certificate(common_name=common_name, pempath=pempath, p12path=p12path, expiry_time_secs=expiry_time_secs)
+        self._generate_certificate(
+            common_name=common_name,
+            pempath=pempath,
+            p12path=p12path,
+            expiry_time_secs=expiry_time_secs,
+        )
         if cert.lower() == "server":
             copyfile(keypath, str(keypath) + ".unencrypted")
 
@@ -483,7 +578,13 @@ class AtakOfTheCerts:
         copyfile("./" + server_name + ".key", config.unencryptedKey)
         copyfile("./" + server_name + ".pem", config.pemDir)
 
-    def generate_auto_certs(self, ip: str, copy: bool = False, expiry_time_secs: int = 31536000, wintak_zip=False) -> None:
+    def generate_auto_certs(
+        self,
+        ip: str,
+        copy: bool = False,
+        expiry_time_secs: int = 31536000,
+        wintak_zip=False,
+    ) -> None:
         """
         Generate the basic files needed for a new install of FTS
         :param ip: A string based ip address or FQDN that clients will use to connect to the server

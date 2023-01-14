@@ -1,6 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
+
 class checklistTasks(CoTNode):
     def __init__(self, configuration, model):
         super().__init__(self.__class__.__name__, configuration, model)
@@ -20,7 +21,7 @@ class checklistTasks(CoTNode):
     @number.setter
     def number(self, number=None):
         self.cot_attributes["number"] = number
-    
+
     @CoTProperty
     def uid(self):
         return self.cot_attributes.get("uid", None)

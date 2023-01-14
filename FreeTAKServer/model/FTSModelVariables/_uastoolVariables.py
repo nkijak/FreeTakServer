@@ -1,5 +1,4 @@
 class _uastoolVariables:
-
     def __init__(self):
         self.extendedCot = None
         self.activeRoute = None

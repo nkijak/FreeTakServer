@@ -1,5 +1,4 @@
 class ConnectionEntryVariables:
-
     def __init__(self):
         self.networkTimeout = None
         self.uid = None

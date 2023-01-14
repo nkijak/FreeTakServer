@@ -5,7 +5,7 @@ class PrecisionlocationVariables:
 
     @classmethod
     def drop_point(cls):
-        cls.ALTSRC = '???'
+        cls.ALTSRC = "???"
         cls.GEOPOINTSRC = None
         return cls
 

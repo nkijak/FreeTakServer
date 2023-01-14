@@ -7,29 +7,29 @@ class FilterGroup:
         self.receivers = {}
 
         # an array of types of CoT which can be received by this group
-        self.allowedType = ['*']
+        self.allowedType = ["*"]
 
         # an array of types of CoT which can't be received by this group
         self.rejectedType = []
 
     def add_source(self, source, source_name):
         self.sources[source_name] = source
-    
+
     def remove_source(self, source_name):
         del self.sources[source_name]
-        
+
     def get_sources(self):
         return self.sources
 
     def add_receiver(self, receiver, receiver_name):
         self.receivers[receiver_name] = receiver
-    
+
     def remove_receiver(self, receiver_name):
         del self.receivers[receiver_name]
-        
+
     def get_receivers(self):
         return self.receivers
-    
+
     def add_allowed_type(self, type):
         self.allowedType.append(type)
 
@@ -40,7 +40,12 @@ class FilterGroup:
         return self.allowedType
 
     def check_if_type_is_allowed(self, type):
-        if type in self.allowedType and type not in self.rejectedType or self.allowedType == ['*'] and type not in self.rejectedType:
+        if (
+            type in self.allowedType
+            and type not in self.rejectedType
+            or self.allowedType == ["*"]
+            and type not in self.rejectedType
+        ):
             return True
 
         else:

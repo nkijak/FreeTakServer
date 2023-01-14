@@ -7,7 +7,7 @@ from sqlalchemy import DateTime
 
 
 class APICalls(Base, Root):  # pylint: disable=too-few-public-methods
-    __tablename__ = 'APICalls'
+    __tablename__ = "APICalls"
 
     call_id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -17,4 +17,4 @@ class APICalls(Base, Root):  # pylint: disable=too-few-public-methods
 
     timestamp = Column(DateTime, nullable=False)
 
-    user_id = Column(String(100), ForeignKey('SystemUser.uid'))
+    user_id = Column(String(100), ForeignKey("SystemUser.uid"))

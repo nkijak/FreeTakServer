@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ServiceTypes(Enum):
     TCPCOTSERVICE = "TCP-CoT-Service"
     SSLCOTSERVICE = "SSL-CoT-Service"

@@ -5,10 +5,19 @@ ERROR = 1
 INFO = 2
 DEBUG = 3
 
+
 class InternalTelemetryService:
     """a service responsible for aggregating and exposing the log data of all components"""
 
-    def __init__(self, max_queue_length: int, error_log_path: str, info_log_path: str, debug_log_path: str, port: int, host: str):
+    def __init__(
+        self,
+        max_queue_length: int,
+        error_log_path: str,
+        info_log_path: str,
+        debug_log_path: str,
+        port: int,
+        host: str,
+    ):
         """
         Args:
             max_queue_length (int): the maximum length any log queue may reach until
@@ -43,7 +52,7 @@ class InternalTelemetryService:
         # the port on which to listen for log publishers
         self.port = port
 
-    def get_errors(self)->list:
+    def get_errors(self) -> list:
         """return all errors in the error queue"""
         return self.error_queue
 
@@ -64,18 +73,28 @@ class InternalTelemetryService:
     def add_log_to_queue(self, log_entry: dict, log_path: str, queue: list):
         """add a given log entry to the specified queue, displacing the
         last entry in the queue if the queue has reached it's limit"""
-        if len(queue)==self.max_queue_length:
+        if len(queue) == self.max_queue_length:
             self.save_log_entry(queue.pop(0), log_path)
         queue.append(log_entry)
 
     def add_log(self, log_entry: dict):
         """add a log entry to one of the queues"""
         if log_entry["level"] == DEBUG:
-            self.add_log_to_queue(log_entry=log_entry, log_path=self.debug_log_path, queue=self.debug_queue)
+            self.add_log_to_queue(
+                log_entry=log_entry,
+                log_path=self.debug_log_path,
+                queue=self.debug_queue,
+            )
         elif log_entry["level"] == INFO:
-            self.add_log_to_queue(log_entry=log_entry, log_path=self.info_log_path, queue=self.info_queue)
+            self.add_log_to_queue(
+                log_entry=log_entry, log_path=self.info_log_path, queue=self.info_queue
+            )
         elif log_entry["level"] == ERROR:
-            self.add_log_to_queue(log_entry=log_entry, log_path=self.error_log_path, queue=self.error_queue)
+            self.add_log_to_queue(
+                log_entry=log_entry,
+                log_path=self.error_log_path,
+                queue=self.error_queue,
+            )
 
     def instantiate_sockets(self):
         """instantiate the required subscriber port"""
@@ -85,14 +104,11 @@ class InternalTelemetryService:
         self.socket.setsockopt(zmq.SUBSCRIBE, b"")
 
     def main(self):
-        """main loop for the reception and processing of log messages
-        """
+        """main loop for the reception and processing of log messages"""
         self.instantiate_sockets()
         while True:
             try:
                 # receive the data from the socket, load it as a dictionary, and save it to its queue
-                self.add_log(
-                    json.loads(self.socket.recv_multipart()[0].decode())
-                )
+                self.add_log(json.loads(self.socket.recv_multipart()[0].decode()))
             except Exception as e:
                 print(e)

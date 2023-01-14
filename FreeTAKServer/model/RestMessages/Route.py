@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 
+
 class Route:
     latitude = "0"
     longitude = "0"

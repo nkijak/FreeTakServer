@@ -2,6 +2,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.ConnectionEntry import ConnectionEntry
 from FreeTAKServer.model.FTSModelVariables._VideoVariables import _Video as vars
 
+
 class _Video(FTSProtocolObject):
     def __init__(self):
         self.sensor = None
@@ -15,7 +16,11 @@ class _Video(FTSProtocolObject):
         return _video
 
     @staticmethod
-    def DroneSensor(SENSOR=vars.DroneSensor().sensor, SPI=vars.DroneSensor().spi, URL=vars.DroneSensor().url, ):
+    def DroneSensor(
+        SENSOR=vars.DroneSensor().sensor,
+        SPI=vars.DroneSensor().spi,
+        URL=vars.DroneSensor().url,
+    ):
         _video = _Video()
         _video.setsensor(SENSOR)
         _video.setspi(SPI)
@@ -36,19 +41,19 @@ class _Video(FTSProtocolObject):
         self.ConnectionEntry = ConnectionEntry
 
     def getsensor(self):
-            return self.sensor
+        return self.sensor
 
     def setsensor(self, sensor):
         self.sensor = sensor
 
     def getspi(self):
-            return self.spi
+        return self.spi
 
     def setspi(self, spi):
         self.spi = spi
 
     def geturl(self):
-            return self.url
+        return self.url
 
     def seturl(self, url):
         self.url = url

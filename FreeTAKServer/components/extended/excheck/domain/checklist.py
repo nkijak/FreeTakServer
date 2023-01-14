@@ -30,10 +30,3 @@ class checklist(CoTNode):
     @checklistTasks.setter
     def checklistTasks(self, checklistTasks=None):
         self.cot_attributes["checklistTasks"] = checklistTasks
-
-    
-
-    
-    
-
-    

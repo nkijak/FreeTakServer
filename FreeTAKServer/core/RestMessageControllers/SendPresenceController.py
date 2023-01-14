@@ -1,6 +1,8 @@
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
@@ -11,6 +13,7 @@ from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendPresenceController").getLogger()
 
+
 class UpdatePresenceController:
     def __init__(self, json):
         tempObject = event.Presence()
@@ -18,7 +21,9 @@ class UpdatePresenceController:
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         DatabaseController().create_CoT(object.modelObject)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):
@@ -32,13 +37,16 @@ class UpdatePresenceController:
             object.detail.contact.setcallsign(json.getname())
             object.detail._group.setname(json.getteam())
             object.detail._group.setrole(json.getrole())
-            if json.gettimeout() != '':
+            if json.gettimeout() != "":
                 object.setstale(staletime=int(json.gettimeout()))
             else:
                 object.setstale(staletime=RestAPIVariables.defaultPresenceTimeout)
             return object
         except AttributeError as e:
-            return Exception('a parameter has been passed which is not recognized with error: '+str(e))
+            return Exception(
+                "a parameter has been passed which is not recognized with error: "
+                + str(e)
+            )
 
     def setCoTObject(self, CoTObject):
         self.CoTObject = CoTObject
@@ -54,7 +62,9 @@ class SendPresenceController:
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         DatabaseController().create_CoT(object.modelObject)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):
@@ -69,13 +79,16 @@ class SendPresenceController:
             object.detail.contact.setcallsign(json.getname())
             object.detail._group.setname(json.getteam())
             object.detail._group.setrole(json.getrole())
-            if json.gettimeout() != '':
+            if json.gettimeout() != "":
                 object.setstale(staletime=int(json.gettimeout()))
             else:
                 object.setstale(staletime=RestAPIVariables.defaultPresenceTimeout)
             return object
         except AttributeError as e:
-            return Exception('a parameter has been passed which is not recognized with error: '+str(e))
+            return Exception(
+                "a parameter has been passed which is not recognized with error: "
+                + str(e)
+            )
 
     def setCoTObject(self, CoTObject):
         self.CoTObject = CoTObject

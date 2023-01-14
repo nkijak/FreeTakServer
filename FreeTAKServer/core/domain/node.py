@@ -1,7 +1,9 @@
 import uuid
 import re
 from typing import Dict, Any
-from digitalpy.core.persistence.impl.default_persistent_object import DefaultPersistentObject
+from digitalpy.core.persistence.impl.default_persistent_object import (
+    DefaultPersistentObject,
+)
 from digitalpy.core.parsing.load_configuration import Configuration
 from digitalpy.core.domain.object_id import ObjectId
 from digitalpy.core.persistence.persistent_object import PersistentObject
@@ -398,7 +400,9 @@ class Node(DefaultPersistentObject):
             self.relation_states[name] = Node.RELATION_STATE_UNINITIALIZED
             self.set_value_internal(name, None)
 
-    def delete_node(self, other: PersistentObject, role: Any = None, update_other_side: Any = True) -> bool:
+    def delete_node(
+        self, other: PersistentObject, role: Any = None, update_other_side: Any = True
+    ) -> bool:
         """Delete a Node from the given relation."""
         mapper = self.get_Mapper()
 

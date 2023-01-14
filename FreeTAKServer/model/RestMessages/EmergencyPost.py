@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.Emergency import Emergency
 
+
 class EmergencyPost(Emergency):
     def __init__(self):
         pass
@@ -29,8 +30,8 @@ class EmergencyPost(Emergency):
         self.latitude = str(latitude)
 
     def getlatitude(self):
-        if self.latitude == '':
-            return '0'
+        if self.latitude == "":
+            return "0"
         else:
 
             return self.latitude
@@ -39,7 +40,7 @@ class EmergencyPost(Emergency):
         self.longitude = str(longitude)
 
     def getlongitude(self):
-        if self.longitude == '':
-            return '0'
+        if self.longitude == "":
+            return "0"
         else:
             return self.longitude

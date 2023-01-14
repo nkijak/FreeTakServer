@@ -1,6 +1,8 @@
 from FreeTAKServer.model.SpecificCoT.SendGeoChat import SendGeoChat
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
@@ -15,7 +17,9 @@ class SendChatController:
         object = SendGeoChat()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(
+            XMLCoTController().serialize_model_to_CoT(object.modelObject)
+        )
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):

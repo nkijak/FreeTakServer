@@ -6,7 +6,7 @@ class Link_attrVariables:
         self.direction = None
         self.routetype = None
         self.order = None
-    
+
     @classmethod
     def Route(cls):
         cls.COLOR = "-1"

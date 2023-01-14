@@ -27,31 +27,54 @@ from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables a
 from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
-from FreeTAKServer.core.RestMessageControllers.SendDeleteVideoStreamController import \
-    SendDeleteVideoStreamController
+from FreeTAKServer.core.RestMessageControllers.SendChatController import (
+    SendChatController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendDeleteVideoStreamController import (
+    SendDeleteVideoStreamController,
+)
 from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
-    UpdateSimpleCoTController
-from FreeTAKServer.core.RestMessageControllers.SendPresenceController import SendPresenceController, \
-    UpdatePresenceController
-from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import SendEmergencyController
-from FreeTAKServer.core.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
-from FreeTAKServer.core.RestMessageControllers.SendSPISensorController import SendSPISensorController
-from FreeTAKServer.core.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
-from FreeTAKServer.core.RestMessageControllers.SendRouteController import SendRouteController
-from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
+from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import (
+    SendSimpleCoTController,
+    UpdateSimpleCoTController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendPresenceController import (
+    SendPresenceController,
+    UpdatePresenceController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import (
+    SendEmergencyController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendSensorDroneController import (
+    SendSensorDroneController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendSPISensorController import (
+    SendSPISensorController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendImageryVideoController import (
+    SendImageryVideoController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendRouteController import (
+    SendRouteController,
+)
+from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import (
+    SendVideoStreamController,
+)
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
-from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
-from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
+from FreeTAKServer.core.serializers.SqlAlchemyObjectController import (
+    SqlAlchemyObjectController,
+)
+from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import (
+    ExCheckController,
+)
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-auth = HTTPTokenAuth(scheme='Bearer')
-app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+auth = HTTPTokenAuth(scheme="Bearer")
+app.config["SQLALCHEMY_DATABASE_URI"] = DatabaseConfiguration().DataBaseConnectionString
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 CORS(app)
 socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
@@ -77,7 +100,7 @@ restMethods.rest_methods()
 defaultValues = vars()
 defaultValues.default_values()
 
-#TODO Change everything about this
+# TODO Change everything about this
 def init_config():
     global dbController
 
@@ -87,7 +110,7 @@ def init_config():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return 'this endpoint does not exist'
+    return "this endpoint does not exist"
 
 
 @auth.verify_token
@@ -101,15 +124,19 @@ def verify_token(token):
             if output:
                 output = output[0]
                 r = request
-                dbController.create_APICall(user_id=output.uid, timestamp=dt.datetime.now(), content=request.data,
-                                            endpoint=request.base_url)
+                dbController.create_APICall(
+                    user_id=output.uid,
+                    timestamp=dt.datetime.now(),
+                    content=request.data,
+                    endpoint=request.base_url,
+                )
                 return output.name
 
 
 def socket_auth(session=None):
     def innerfunc(x):
         def wrapper(*args, **kwargs):
-            if hasattr(session, 'authenticated') and session.authenticated:
+            if hasattr(session, "authenticated") and session.authenticated:
                 x(*args, **kwargs)
             else:
                 pass
@@ -119,26 +146,29 @@ def socket_auth(session=None):
     return innerfunc
 
 
-@app.route('/Alive')
+@app.route("/Alive")
 def sessions():
-    return b'API is running', 200
+    return b"API is running", 200
 
 
-@socketio.on('connect')
+@socketio.on("connect")
 def connection():
-    emit('connectUpdate', json.dumps({"starttime": str(StartTime), "version": str(config.version)}))
+    emit(
+        "connectUpdate",
+        json.dumps({"starttime": str(StartTime), "version": str(config.version)}),
+    )
 
 
-@socketio.on('authenticate')
+@socketio.on("authenticate")
 def authenticate(token):
     if json.loads(token)["Authenticate"] == config.websocketkey:
-        emit('authentication', json.dumps({'successful': 'True'}))
+        emit("authentication", json.dumps({"successful": "True"}))
         session.authenticated = True  # pylint: disable=assigning-non-slot; this is necessary to save a client's state
     else:
-        emit('authentication', json.dumps({'successful': 'False'}))
+        emit("authentication", json.dumps({"successful": "False"}))
 
 
-@socketio.on('users')
+@socketio.on("users")
 @socket_auth(session=session)
 def show_users(empty=None):
     output = dbController.query_user()
@@ -148,53 +178,61 @@ def show_users(empty=None):
             output[i] = output[i].__dict__
             print(output[i])
             try:
-                output[i]['callsign'] = original.CoT.detail.contact.callsign
-                output[i]['team'] = original.CoT.detail._group.name
+                output[i]["callsign"] = original.CoT.detail.contact.callsign
+                output[i]["team"] = original.CoT.detail._group.name
             except:
-                output[i]['callsign'] = "undefined"
-                output[i]['team'] = "undefined"
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['CoT_id'])
-            del (output[i]['CoT'])
+                output[i]["callsign"] = "undefined"
+                output[i]["team"] = "undefined"
+            del output[i]["_sa_instance_state"]
+            del output[i]["CoT_id"]
+            del output[i]["CoT"]
         except Exception as e:
             print(e)
-    socketio.emit('userUpdate', json.dumps({"Users": output}))
+    socketio.emit("userUpdate", json.dumps({"Users": output}))
 
 
-@socketio.on('logs')
+@socketio.on("logs")
 @socket_auth(session=session)
 def return_logs(time):
-    log_data = {'log_data': []}
+    log_data = {"log_data": []}
     for line in reversed(open(LoggingConstants().ERRORLOG, "r").readlines()):
         try:
             timeoflog = line.split(" : ")[1]
-            if datetime.datetime.strptime(timeoflog, '%Y-%m-%d %H:%M:%S,%f') > datetime.datetime.strptime(
-                    json.loads(time)["time"], '%Y-%m-%d %H:%M:%S,%f'):
-                outline = {"time": '', "type": '', 'file': '', 'message': ''}
+            if datetime.datetime.strptime(
+                timeoflog, "%Y-%m-%d %H:%M:%S,%f"
+            ) > datetime.datetime.strptime(
+                json.loads(time)["time"], "%Y-%m-%d %H:%M:%S,%f"
+            ):
+                outline = {"time": "", "type": "", "file": "", "message": ""}
                 line_segments = line.split(" : ")
                 outline["type"] = line_segments[0]
                 outline["time"] = line_segments[1]
                 outline["file"] = line_segments[2]
                 outline["message"] = " : ".join(line_segments[3:-1])
-                log_data['log_data'].append(outline)
+                log_data["log_data"].append(outline)
             else:
                 break
         except:
             pass
     for num in range(1, 6):
         try:
-            for line in reversed(open(LoggingConstants().ERRORLOG + '.' + str(num), "r").readlines()):
+            for line in reversed(
+                open(LoggingConstants().ERRORLOG + "." + str(num), "r").readlines()
+            ):
                 try:
                     timeoflog = line.split(" : ")[1]
-                    if datetime.datetime.strptime(timeoflog, '%Y-%m-%d %H:%M:%S,%f') > datetime.datetime.strptime(
-                            json.loads(time)["time"], '%Y-%m-%d %H:%M:%S,%f'):
-                        outline = {"time": '', "type": '', 'file': '', 'message': ''}
+                    if datetime.datetime.strptime(
+                        timeoflog, "%Y-%m-%d %H:%M:%S,%f"
+                    ) > datetime.datetime.strptime(
+                        json.loads(time)["time"], "%Y-%m-%d %H:%M:%S,%f"
+                    ):
+                        outline = {"time": "", "type": "", "file": "", "message": ""}
                         line_segments = line.split(" : ")
                         outline["type"] = line_segments[0]
                         outline["time"] = line_segments[1]
                         outline["file"] = line_segments[2]
                         outline["message"] = line_segments[3]
-                        log_data['log_data'].append(outline)
+                        log_data["log_data"].append(outline)
                     else:
                         break
                 except:
@@ -204,7 +242,7 @@ def return_logs(time):
     emit("logUpdate", json.dumps(log_data))
 
 
-@socketio.on('serviceInfo')
+@socketio.on("serviceInfo")
 @socket_auth(session=session)
 def show_service_info(empty=None):
     mapping = {"start": "on", "stop": "off", "": ""}
@@ -215,21 +253,36 @@ def show_service_info(empty=None):
     tcpdp = FTSServerStatusObject.TCPDataPackageService
     ssldp = FTSServerStatusObject.SSLDataPackageService
     fedserver = FTSServerStatusObject.FederationServerService
-    jsonObject = {"services":
-                      {"TCP_CoT_service": {"status": mapping[tcpcot.CoTServiceStatus], "port": tcpcot.CoTServicePort},
-                       "SSL_CoT_service": {"status": mapping[sslcot.SSLCoTServiceStatus],
-                                           "port": sslcot.SSLCoTServicePort},
-                       "TCP_DataPackage_service": {"status": mapping[tcpdp.TCPDataPackageServiceStatus],
-                                                   "port": tcpdp.TCPDataPackageServicePort},
-                       "SSL_DataPackage_service": {"status": mapping[ssldp.SSLDataPackageServiceStatus],
-                                                   "port": ssldp.SSLDataPackageServicePort},
-                       "Federation_server_service": {"status": mapping[fedserver.FederationServerServiceStatus],
-                                                     "port": fedserver.FederationServerServicePort},
-                       "Rest_API_service": {"status": mapping[restapi.RestAPIServiceStatus],
-                                            "port": restapi.RestAPIServicePort}},
-                  "ip": tcpdp.TCPDataPackageServiceIP
-                  }
-    emit('serviceInfoUpdate', json.dumps(jsonObject))
+    jsonObject = {
+        "services": {
+            "TCP_CoT_service": {
+                "status": mapping[tcpcot.CoTServiceStatus],
+                "port": tcpcot.CoTServicePort,
+            },
+            "SSL_CoT_service": {
+                "status": mapping[sslcot.SSLCoTServiceStatus],
+                "port": sslcot.SSLCoTServicePort,
+            },
+            "TCP_DataPackage_service": {
+                "status": mapping[tcpdp.TCPDataPackageServiceStatus],
+                "port": tcpdp.TCPDataPackageServicePort,
+            },
+            "SSL_DataPackage_service": {
+                "status": mapping[ssldp.SSLDataPackageServiceStatus],
+                "port": ssldp.SSLDataPackageServicePort,
+            },
+            "Federation_server_service": {
+                "status": mapping[fedserver.FederationServerServiceStatus],
+                "port": fedserver.FederationServerServicePort,
+            },
+            "Rest_API_service": {
+                "status": mapping[restapi.RestAPIServiceStatus],
+                "port": restapi.RestAPIServicePort,
+            },
+        },
+        "ip": tcpdp.TCPDataPackageServiceIP,
+    }
+    emit("serviceInfoUpdate", json.dumps(jsonObject))
 
 
 def getStatus():
@@ -246,29 +299,27 @@ def serverHealth(empty=None):
     import psutil
     import pathlib
     import os
+
     disk_usage = int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
     memory_usage = int(psutil.virtual_memory().percent)
     cpu_usage = int(psutil.cpu_percent(interval=0.1))
-    jsondata = {
-        "CPU": cpu_usage,
-        "memory": memory_usage,
-        "disk": disk_usage
-    }
-    emit('serverHealthUpdate', json.dumps(jsondata))
+    jsondata = {"CPU": cpu_usage, "memory": memory_usage, "disk": disk_usage}
+    emit("serverHealthUpdate", json.dumps(jsondata))
 
 
-@socketio.on('systemStatus')
+@socketio.on("systemStatus")
 @socket_auth(session=session)
 def systemStatus(update=None):
-    print('system status running')
+    print("system status running")
     from FreeTAKServer.core.health.ServerStatusController import ServerStatusController
+
     currentStatus = getStatus()
     statusObject = ServerStatusController(currentStatus)
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
-    emit('systemStatusUpdate', json.dumps(jsondata))
+    emit("systemStatusUpdate", json.dumps(jsondata))
 
 
-@socketio.on('changeServiceInfo')
+@socketio.on("changeServiceInfo")
 @socket_auth(session=session)
 def updateSystemStatus(update):
     # TODO: add documentation
@@ -276,18 +327,18 @@ def updateSystemStatus(update):
     show_service_info()
 
 
-@socketio.on('systemUsers')
+@socketio.on("systemUsers")
 @socket_auth(session=session)
 def systemUsers(empty=None):
     jsondata = get_system_users()
 
-    emit('systemUsersUpdate', json.dumps(jsondata))
+    emit("systemUsersUpdate", json.dumps(jsondata))
 
-@app.route('/ManageSystemUser/getAll', methods=["GET"])
+
+@app.route("/ManageSystemUser/getAll", methods=["GET"])
 @auth.login_required
 def getSystemUsersRest():
-    """ wrapper around the updateSystemUser function for Rest API
-    """
+    """wrapper around the updateSystemUser function for Rest API"""
     try:
         jsondata = get_system_users()
         return json.dumps(jsondata), 200
@@ -295,12 +346,13 @@ def getSystemUsersRest():
         print(e)
         return str(e), 500
 
+
 def get_system_users():
     systemUserArray = DatabaseController().query_systemUser()
     jsondata = {"SystemUsers": []}
     for user in systemUserArray:
         userjson = {}
-        userjson['Name'] = user.name
+        userjson["Name"] = user.name
         userjson["Group"] = user.group
         userjson["Token"] = user.token
         userjson["Password"] = user.password
@@ -311,18 +363,18 @@ def get_system_users():
     return jsondata
 
 
-@socketio.on('systemUser')
+@socketio.on("systemUser")
 @socket_auth(session=session)
 def systemUsers(empty=None):
     jsondata = get_system_users()
 
-    emit('systemUsersUpdate', json.dumps(jsondata))
+    emit("systemUsersUpdate", json.dumps(jsondata))
 
-@app.route('/ManageSystemUser/getSystemUser', methods=["GET"])
+
+@app.route("/ManageSystemUser/getSystemUser", methods=["GET"])
 @auth.login_required
 def getSystemUserRest():
-    """ wrapper around the updateSystemUser function for Rest API
-    """
+    """wrapper around the updateSystemUser function for Rest API"""
     try:
         jsondata = get_system_user(request.json)
         return json.dumps(jsondata), 200
@@ -330,12 +382,13 @@ def getSystemUserRest():
         print(e)
         return str(e), 500
 
+
 def get_system_user(jsondata):
     systemUserArray = DatabaseController().query_by_systemUser(**jsondata)
     jsondata = {"SystemUsers": []}
     for user in systemUserArray:
         userjson = {}
-        userjson['Name'] = user.name
+        userjson["Name"] = user.name
         userjson["Group"] = user.group
         userjson["Token"] = user.token
         userjson["Password"] = user.password
@@ -346,31 +399,31 @@ def get_system_user(jsondata):
     return jsondata
 
 
-@socketio.on('updateSystemUser')
+@socketio.on("updateSystemUser")
 @socket_auth(session=session)
 def updateSystemUserWebsocket(jsondata):
-    """ wrapper around the updateSystemUser function for websockets
-    """
+    """wrapper around the updateSystemUser function for websockets"""
     try:
         return updateSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
 
-@app.route('/ManageSystemUser/putSystemUser', methods=["PUT"])
+
+@app.route("/ManageSystemUser/putSystemUser", methods=["PUT"])
 @auth.login_required
 def updateSystemUserRest():
-    """ wrapper around the updateSystemUser function for Rest API
-    """
+    """wrapper around the updateSystemUser function for Rest API"""
     try:
         updateSystemUser(request.json)
-        return 'user updated', 200
+        return "user updated", 200
     except Exception as e:
         print(e)
         return str(e), 500
 
+
 def updateSystemUser(jsondata):
-    """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
+    """this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
     exist operation will return an error
 
     Args:
@@ -379,7 +432,7 @@ def updateSystemUser(jsondata):
     Returns: None
 
     """
-    for systemuser in jsondata['systemUsers']:
+    for systemuser in jsondata["systemUsers"]:
         update_column = {}
 
         if "Token" in systemuser:
@@ -388,37 +441,38 @@ def updateSystemUser(jsondata):
             update_column["password"] = str(systemuser["Password"])
         if "Group" in systemuser:
             update_column["group"] = str(systemuser["Group"])
-        dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
+        dbController.update_systemUser(
+            query=f'uid = "{systemuser["uid"]}"', column_value=update_column
+        )
     get_system_users()
 
 
-@socketio.on('addSystemUser')
+@socketio.on("addSystemUser")
 @socket_auth(session=session)
 def addSystemUserWebsocket(jsondata):
-    """ wrapper around the addSystemUser function for websockets
-    """
+    """wrapper around the addSystemUser function for websockets"""
     try:
         addSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
 
-@app.route('/ManageSystemUser/postSystemUser', methods=["POST"])
+
+@app.route("/ManageSystemUser/postSystemUser", methods=["POST"])
 @auth.login_required
 def addSystemUserRest():
-    """ wrapper around the addSystemUser function for Rest API
-    """
+    """wrapper around the addSystemUser function for Rest API"""
     try:
         return addSystemUser(request.json)
     except Exception as e:
         print(e)
         return str(e), 500
 
+
 def addSystemUser(jsondata):
-    """ method which adds new system user
-    """
+    """method which adds new system user"""
     errors = []
-    for systemuser in jsondata['systemUsers']:
+    for systemuser in jsondata["systemUsers"]:
         try:
             user_id = str(uuid.uuid4())
             if systemuser["Certs"] == "true":
@@ -430,11 +484,17 @@ def addSystemUser(jsondata):
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
                 if systemuser["DeviceType"].lower() == "wintak":
-                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                    certificate_generation.generate_wintak_zip(
+                        user_filename=cert_name + ".p12"
+                    )
                 elif systemuser["DeviceType"].lower() == "mobile":
-                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
+                    certificate_generation.generate_standard_zip(
+                        user_filename=cert_name + ".p12"
+                    )
                 else:
-                    raise Exception("invalid device type, must be either mobile or wintak")
+                    raise Exception(
+                        "invalid device type, must be either mobile or wintak"
+                    )
                 # add DP
                 import string
                 import random
@@ -443,24 +503,41 @@ def addSystemUser(jsondata):
                 from defusedxml import ElementTree as etree
                 import shutil
                 import os
+
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
-                openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
-                                mode='rb')
+                openfile = open(
+                    str(PurePath(Path(str(config.ClientPackages), cert_name + ".zip"))),
+                    mode="rb",
+                )
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
                 openfile.close()
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
-                shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
-                            str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
-                fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
-                dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
-                                                SubmissionUser='server',
-                                                CreatorUid='server-uid', Size=fileSize, Privacy=1)
-                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                token=systemuser["Token"], password=systemuser["Password"],
-                                                uid=user_id,
-                                                certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
+                shutil.copy(
+                    str(PurePath(Path(str(config.ClientPackages), cert_name + ".zip"))),
+                    str(PurePath(Path(newDirectory), Path(cert_name + ".zip"))),
+                )
+                fileSize = Path(str(newDirectory), cert_name + ".zip").stat().st_size
+                dbController.create_datapackage(
+                    uid=user_id,
+                    Name=cert_name + ".zip",
+                    Hash=file_hash,
+                    SubmissionUser="server",
+                    CreatorUid="server-uid",
+                    Size=fileSize,
+                    Privacy=1,
+                )
+                dbController.create_systemUser(
+                    name=systemuser["Name"],
+                    group=systemuser["Group"],
+                    token=systemuser["Token"],
+                    password=systemuser["Password"],
+                    uid=user_id,
+                    certificate_package_name=cert_name + ".zip",
+                    device_type=systemuser["DeviceType"],
+                )
                 import datetime as dt
+
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
@@ -472,8 +549,11 @@ def addSystemUser(jsondata):
                 now = timer.utcnow()
                 zulu = now.strftime(DATETIME_FMT)
                 time = zulu
-                from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import SendOtherController
+                from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import (
+                    SendOtherController,
+                )
                 from FreeTAKServer.model.RawCoT import RawCoT
+
                 cot = RawCoT()
                 DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
                 clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
@@ -483,101 +563,122 @@ def addSystemUser(jsondata):
 
             else:
                 # in the event no certificate is to be generated simply create a system user
-                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                token=systemuser["Token"], password=systemuser["Password"],
-                                                uid=user_id, device_type = systemuser["DeviceType"])
+                dbController.create_systemUser(
+                    name=systemuser["Name"],
+                    group=systemuser["Group"],
+                    token=systemuser["Token"],
+                    password=systemuser["Password"],
+                    uid=user_id,
+                    device_type=systemuser["DeviceType"],
+                )
         except Exception as e:
             if isinstance(systemuser, dict) and "Name" in systemuser:
-                errors.append(f"operation failed for user {systemuser['Name']} with error {str(e)}")
+                errors.append(
+                    f"operation failed for user {systemuser['Name']} with error {str(e)}"
+                )
             else:
-                errors.append(f"operation failed for user missing name parameter with error {str(e)}")
+                errors.append(
+                    f"operation failed for user missing name parameter with error {str(e)}"
+                )
 
     if len(errors) == 0:
         return "all users created", 201
-    elif len(errors)<len(jsondata['systemUsers']):
+    elif len(errors) < len(jsondata["systemUsers"]):
         return ", ".join(errors), 201
     else:
-        return "all users failed to create "+", ".join(errors), 500
+        return "all users failed to create " + ", ".join(errors), 500
+
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
 def removeSystemUserWebsocket(jsondata):
-    """ wrapper around the removeSystemUser function for websockets
-    """
+    """wrapper around the removeSystemUser function for websockets"""
     try:
         removeSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
 
-@app.route('/ManageSystemUser/deleteSystemUser', methods=["DELETE"])
+
+@app.route("/ManageSystemUser/deleteSystemUser", methods=["DELETE"])
 @auth.login_required
 def removeSystemUserRest():
-    """ wrapper around the removeSystemUser function for Rest API
-    """
+    """wrapper around the removeSystemUser function for Rest API"""
     try:
         removeSystemUser(request.json)
-        return 'user deleted', 200
+        return "user deleted", 200
     except Exception as e:
         print(e)
         return str(e), 500
 
+
 def removeSystemUser(jsondata):
-    """ iterates through a list of system users and removes them in addition to revoking and
+    """iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
     from FreeTAKServer.core.util.certificate_generation import revoke_certificate
+
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
         na = systemUser.name
-        revoke_certificate(username=na+uid)
+        revoke_certificate(username=na + uid)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
         # TODO: make this coherent with constants
         currentPath = config.DataPackageFilePath
-        shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
+        shutil.rmtree(f"{str(currentPath)}/{obj[0].Hash}")
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
         os.remove(config.certsPath + f"/{na}{uid}.pem")
         os.remove(config.certsPath + f"/{na}{uid}.key")
         os.remove(config.certsPath + f"/{na}{uid}.p12")
-    return '', 200
+    return "", 200
+
 
 @socketio.on("events")
 @socket_auth(session=session)
 def events(empty=None):
     current_notifications = Notification()
     # socketio.emit(json.dumps([current_notifications.logErrors, current_notifications.emergencys]))
-    emit("eventsUpdate", {"events": current_notifications.logErrors + current_notifications.emergencys})
+    emit(
+        "eventsUpdate",
+        {"events": current_notifications.logErrors + current_notifications.emergencys},
+    )
 
-@app.route('/GenerateQR', methods=["GET"])
+
+@app.route("/GenerateQR", methods=["GET"])
 def generate_qr():
-    datapackage_id = request.args.get('datapackage_id')
+    datapackage_id = request.args.get("datapackage_id")
     dp = dbController.query_datapackage(query=f"PrimaryKey={datapackage_id}")[0]
-    qr = qrcode.QRCode(
-        version=1,
-        box_size=10,
-        border=5)
-    qr.add_data(f'http://{config.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool')
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(
+        f"http://{config.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool"
+    )
     qr.make(fit=True)
-    img = qr.make_image(fill='black', back_color='white')
+    img = qr.make_image(fill="black", back_color="white")
     img_io = io.BytesIO()
-    img.save(img_io, 'JPEG', quality=70)
+    img.save(img_io, "JPEG", quality=70)
     img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg')
+    return send_file(img_io, mimetype="image/jpeg")
 
-@app.route('/ManageNotification/getNotification', methods=["GET"])
+
+@app.route("/ManageNotification/getNotification", methods=["GET"])
 def notification():
     current_notifications = Notification()
-    return json.dumps({"logErrors": current_notifications.logErrors, "emergencys": current_notifications.emergencys})
+    return json.dumps(
+        {
+            "logErrors": current_notifications.logErrors,
+            "emergencys": current_notifications.emergencys,
+        }
+    )
 
 
 def getlogErrors():
     output = []
     for line in reversed(open(LoggingConstants().ERRORLOG, "r").readlines()):
         try:
-            outline = {"time": '', "type": '', 'file': '', 'message': ''}
+            outline = {"time": "", "type": "", "file": "", "message": ""}
             line_segments = line.split(" : ")
             if line_segments[0] != "CRITICAL":
                 continue
@@ -593,10 +694,12 @@ def getlogErrors():
             pass
     for num in range(1, 6):
         try:
-            for line in reversed(open(LoggingConstants().ERRORLOG + '.' + str(num), "r").readlines()):
+            for line in reversed(
+                open(LoggingConstants().ERRORLOG + "." + str(num), "r").readlines()
+            ):
                 try:
                     timeoflog = line.split(" : ")[1]
-                    outline = {"time": '', "type": '', 'file': '', 'message': ''}
+                    outline = {"time": "", "type": "", "file": "", "message": ""}
                     line_segments = line.split(" : ")
                     if line_segments[0] != "CRITICAL":
                         continue
@@ -622,8 +725,8 @@ def getemergencys():
             output[i]["lon"] = original.event.point.lon
             output[i]["type"] = original.event.detail.emergency.type
             output[i]["name"] = original.event.detail.contact.callsign
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['event'])
+            del output[i]["_sa_instance_state"]
+            del output[i]["event"]
         except:
             pass
     return output
@@ -648,14 +751,17 @@ def SendGeoChat():
         json = request.json
         modelObject = Event.GeoChat()
         out = ApplyFullJsonController().serializeJsonToModel(modelObject, json)
-        xml = XMLCoTController().serialize_model_to_CoT(out, 'event')
-        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import SendGeoChatController
+        xml = XMLCoTController().serialize_model_to_CoT(out, "event")
+        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import (
+            SendGeoChatController,
+        )
+
         rawcot = RawCoT()
         rawcot.xmlString = xml
         rawcot.clientInformation = None
         object = SendGeoChatController(rawcot)
         APIPipe.put(object.getObject())
-        return '200', 200
+        return "200", 200
     except Exception as e:
         print(e)
 
@@ -671,6 +777,7 @@ def ManagePresence():
 def postPresence():
     try:
         from json import dumps
+
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_presence_post(jsondata)
@@ -686,6 +793,7 @@ def postPresence():
 def putPresence():
     try:
         from json import dumps
+
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_presence_post(jsondata)
@@ -707,6 +815,7 @@ def ManageRoute():
 def postRoute():
     try:
         from json import dumps
+
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_route_post(jsondata)
@@ -723,9 +832,10 @@ def getZoneCoT():
     try:
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
+
         jsondata = request.get_json(force=True)
         radius = int(jsondata["radius"])
-        lat = (int(jsondata["latitude"]))
+        lat = int(jsondata["latitude"])
         lon = int(jsondata["longitude"])
         lat_abs = abs(lat)
         lon_abs = abs(lon)
@@ -735,50 +845,100 @@ def getZoneCoT():
         from FreeTAKServer.model.SQLAlchemy.Event import Event
         from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
         import re
-        radius_in_deg = (geopy.units.degrees(arcseconds=geopy.units.nautical(meters=radius))) / 2
 
-        results = dbController.query_CoT(query=[Event.point.has(or_(and_(Point.lon < 0, Point.lat < 0, (
-                    (((Point.lon * -1) - lon_abs) * 111302.62) + (
-                        ((Point.lat * -1) - lat_abs) * 110574.61)) <= radius + 10), and_(Point.lon < 0, Point.lat >= 0,
-                                                                                         ((((
-                                                                                                        Point.lon * -1) - lon_abs) * 111302.62) + (
-                                                                                                      (
-                                                                                                                  Point.lat - lat_abs) * 110574.61)) <= radius + 10),
-                                                                    and_(Point.lon >= 0, Point.lat < 0, (
-                                                                                ((Point.lon - lon_abs) * 111302.62) + ((
-                                                                                                                                   (
-                                                                                                                                               Point.lat * -1) - lat_abs) * 110574.61)) <= radius + 10),
-                                                                    and_(Point.lon >= 0, Point.lat >= 0, (
-                                                                                ((Point.lon - lon_abs) * 111302.62) + ((
-                                                                                                                                   Point.lat - lat_abs) * 110574.61)) <= radius + 10)))])
+        radius_in_deg = (
+            geopy.units.degrees(arcseconds=geopy.units.nautical(meters=radius))
+        ) / 2
+
+        results = dbController.query_CoT(
+            query=[
+                Event.point.has(
+                    or_(
+                        and_(
+                            Point.lon < 0,
+                            Point.lat < 0,
+                            (
+                                (((Point.lon * -1) - lon_abs) * 111302.62)
+                                + (((Point.lat * -1) - lat_abs) * 110574.61)
+                            )
+                            <= radius + 10,
+                        ),
+                        and_(
+                            Point.lon < 0,
+                            Point.lat >= 0,
+                            (
+                                (((Point.lon * -1) - lon_abs) * 111302.62)
+                                + ((Point.lat - lat_abs) * 110574.61)
+                            )
+                            <= radius + 10,
+                        ),
+                        and_(
+                            Point.lon >= 0,
+                            Point.lat < 0,
+                            (
+                                ((Point.lon - lon_abs) * 111302.62)
+                                + (((Point.lat * -1) - lat_abs) * 110574.61)
+                            )
+                            <= radius + 10,
+                        ),
+                        and_(
+                            Point.lon >= 0,
+                            Point.lat >= 0,
+                            (
+                                ((Point.lon - lon_abs) * 111302.62)
+                                + ((Point.lat - lat_abs) * 110574.61)
+                            )
+                            <= radius + 10,
+                        ),
+                    )
+                )
+            ]
+        )
         print(results)
         output = []
         for result in results:
             try:
-                dLon = (result.point.lon - lon)
+                dLon = result.point.lon - lon
                 x = cos(radians(result.point.lat)) * sin(radians(dLon))
-                y = cos(radians(lat)) * sin(radians(result.point.lat)) - sin(radians(lat)) * cos(
-                    radians(result.point.lat)) * cos(radians(dLon))
+                y = cos(radians(lat)) * sin(radians(result.point.lat)) - sin(
+                    radians(lat)
+                ) * cos(radians(result.point.lat)) * cos(radians(dLon))
                 brng = atan2(x, y)
                 brng = degrees(brng)
-                type_pattern = [type for type in list(RestEnumerations.supportedTypeEnumerations.values()) if
-                                re.fullmatch(type, result.type)][0]
-                index_number = list(RestEnumerations.supportedTypeEnumerations.values()).index(type_pattern)
-                type = list(RestEnumerations.supportedTypeEnumerations.keys())[index_number]
+                type_pattern = [
+                    type
+                    for type in list(
+                        RestEnumerations.supportedTypeEnumerations.values()
+                    )
+                    if re.fullmatch(type, result.type)
+                ][0]
+                index_number = list(
+                    RestEnumerations.supportedTypeEnumerations.values()
+                ).index(type_pattern)
+                type = list(RestEnumerations.supportedTypeEnumerations.keys())[
+                    index_number
+                ]
                 print(type)
-                part1 = result.type.split(type_pattern.split('.')[0])
-                part2 = '-' + part1[1].split(type_pattern.split('.')[1])[0] + '-'
-                attitude = list(RestEnumerations.attitude.keys())[list(RestEnumerations.attitude.values()).index(part2)]
+                part1 = result.type.split(type_pattern.split(".")[0])
+                part2 = "-" + part1[1].split(type_pattern.split(".")[1])[0] + "-"
+                attitude = list(RestEnumerations.attitude.keys())[
+                    list(RestEnumerations.attitude.values()).index(part2)
+                ]
                 print(attitude)
                 # attitude = RestEnumerations.attitude['-'+type.split(type_pattern.split('.')[0])[1].split(type_pattern.split('.')[1])+'-']
 
-                output.append({"latitude": result.point.lat,
-                               "longitude": result.point.lon,
-                               "distance": distance((result.point.lon, result.point.lat), (lon, lat)).m,
-                               "direction": brng,
-                               "type": type,
-                               "attitude": attitude
-                               })
+                output.append(
+                    {
+                        "latitude": result.point.lat,
+                        "longitude": result.point.lon,
+                        "distance": distance(
+                            (result.point.lon, result.point.lat), (lon, lat)
+                        ).m,
+                        "direction": brng,
+                        "type": type,
+                        "attitude": attitude,
+                    }
+                )
             except Exception as e:
                 pass
         return json.dumps(output)
@@ -798,6 +958,7 @@ def getGeoObject():
     try:
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
+
         # jsondata = request.get_json(force=True)
         radius = request.args.get("radius", default=100, type=int)
         lat = request.args.get("latitude", default=0, type=float)
@@ -811,61 +972,156 @@ def getGeoObject():
         from FreeTAKServer.model.SQLAlchemy.Event import Event
         from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
         import re
-        radius_in_deg = (geopy.units.degrees(arcseconds=geopy.units.nautical(meters=radius))) / 2
+
+        radius_in_deg = (
+            geopy.units.degrees(arcseconds=geopy.units.nautical(meters=radius))
+        ) / 2
         if lat_abs >= 0 and lon_abs >= 0:
-            results = dbController.query_CoT(query=Event.point.has(and_(
-                Point.lon >= 0,
-                Point.lat >= 0,
-                or_(
+            results = dbController.query_CoT(
+                query=Event.point.has(
                     and_(
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) <= radius + 10,
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) >= 0),
-                    and_((
-                        ((lon_abs - Point.lon) * 111302.62) + ((lon_abs - Point.lat) * 110574.61)) <= radius + 10,
-                        (((lon_abs - Point.lon) * 111302.62) + ((lon_abs - Point.lat) * 110574.61)) >= 0)))))
-        elif lon_abs < 0 and lat_abs < 0:
-            results = dbController.query_CoT(query=[Event.point.has(and_(
-                Point.lon < 0,
-                Point.lat < 0,
-                or_(
-                    and_(
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) > 0,
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) <= radius + 10),
-                    and_(
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0,
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10)
+                        Point.lon >= 0,
+                        Point.lat >= 0,
+                        or_(
+                            and_(
+                                (
+                                    ((Point.lon - lon_abs) * 111302.62)
+                                    + ((Point.lat - lat_abs) * 110574.61)
+                                )
+                                <= radius + 10,
+                                (
+                                    ((Point.lon - lon_abs) * 111302.62)
+                                    + ((Point.lat - lat_abs) * 110574.61)
+                                )
+                                >= 0,
+                            ),
+                            and_(
+                                (
+                                    ((lon_abs - Point.lon) * 111302.62)
+                                    + ((lon_abs - Point.lat) * 110574.61)
+                                )
+                                <= radius + 10,
+                                (
+                                    ((lon_abs - Point.lon) * 111302.62)
+                                    + ((lon_abs - Point.lat) * 110574.61)
+                                )
+                                >= 0,
+                            ),
+                        ),
+                    )
                 )
-            ))])
+            )
+        elif lon_abs < 0 and lat_abs < 0:
+            results = dbController.query_CoT(
+                query=[
+                    Event.point.has(
+                        and_(
+                            Point.lon < 0,
+                            Point.lat < 0,
+                            or_(
+                                and_(
+                                    (
+                                        ((Point.lon - lon_abs) * 111302.62)
+                                        + ((Point.lat - lat_abs) * 110574.61)
+                                    )
+                                    > 0,
+                                    (
+                                        ((Point.lon - lon_abs) * 111302.62)
+                                        + ((Point.lat - lat_abs) * 110574.61)
+                                    )
+                                    <= radius + 10,
+                                ),
+                                and_(
+                                    (
+                                        ((lon_abs - Point.lon) * 111302.62)
+                                        + ((lat_abs - Point.lat) * 110574.61)
+                                    )
+                                    > 0,
+                                    (
+                                        ((lon_abs - Point.lon) * 111302.62)
+                                        + ((lat_abs - Point.lat) * 110574.61)
+                                    )
+                                    <= radius + 10,
+                                ),
+                            ),
+                        )
+                    )
+                ]
+            )
 
         elif lon_abs < 0 and lat_abs > 0:
-            results = dbController.query_CoT(query=Event.point.has(and_(
-                Point.lon < 0,
-                Point.lat >= 0,
-                or_(
+            results = dbController.query_CoT(
+                query=Event.point.has(
                     and_(
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) <= radius + 10,
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) > 0),
-                    and_(
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0)
-                ))))
+                        Point.lon < 0,
+                        Point.lat >= 0,
+                        or_(
+                            and_(
+                                (
+                                    ((Point.lon - lon_abs) * 111302.62)
+                                    + ((Point.lat - lat_abs) * 110574.61)
+                                )
+                                <= radius + 10,
+                                (
+                                    ((Point.lon - lon_abs) * 111302.62)
+                                    + ((Point.lat - lat_abs) * 110574.61)
+                                )
+                                > 0,
+                            ),
+                            and_(
+                                (
+                                    ((lon_abs - Point.lon) * 111302.62)
+                                    + ((lat_abs - Point.lat) * 110574.61)
+                                )
+                                <= radius + 10,
+                                (
+                                    ((lon_abs - Point.lon) * 111302.62)
+                                    + ((lat_abs - Point.lat) * 110574.61)
+                                )
+                                > 0,
+                            ),
+                        ),
+                    )
+                )
+            )
 
         elif lon_abs > 0 and lat_abs < 0:
-            results = dbController.query_CoT(query=[Event.point.has(and_(
-                Point.lon >= 0,
-                Point.lat < 0,
-                or_(
-
-                    and_(
-
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
-                        (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0),
-                    and_(
-
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) <= radius + 10,
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) > 0))
-
-            ))])
+            results = dbController.query_CoT(
+                query=[
+                    Event.point.has(
+                        and_(
+                            Point.lon >= 0,
+                            Point.lat < 0,
+                            or_(
+                                and_(
+                                    (
+                                        ((lon_abs - Point.lon) * 111302.62)
+                                        + ((lat_abs - Point.lat) * 110574.61)
+                                    )
+                                    <= radius + 10,
+                                    (
+                                        ((lon_abs - Point.lon) * 111302.62)
+                                        + ((lat_abs - Point.lat) * 110574.61)
+                                    )
+                                    > 0,
+                                ),
+                                and_(
+                                    (
+                                        ((Point.lon - lon_abs) * 111302.62)
+                                        + ((Point.lat - lat_abs) * 110574.61)
+                                    )
+                                    <= radius + 10,
+                                    (
+                                        ((Point.lon - lon_abs) * 111302.62)
+                                        + ((Point.lat - lat_abs) * 110574.61)
+                                    )
+                                    > 0,
+                                ),
+                            ),
+                        )
+                    )
+                ]
+            )
 
         else:
             return "unsupported coordinates"
@@ -900,23 +1156,35 @@ def getGeoObject():
         for result in results:
             try:
                 print(result.uid)
-                dLon = (result.point.lon - lon)
+                dLon = result.point.lon - lon
                 x = cos(radians(result.point.lat)) * sin(radians(dLon))
-                y = cos(radians(lat)) * sin(radians(result.point.lat)) - sin(radians(lat)) * cos(
-                    radians(result.point.lat)) * cos(radians(dLon))
+                y = cos(radians(lat)) * sin(radians(result.point.lat)) - sin(
+                    radians(lat)
+                ) * cos(radians(result.point.lat)) * cos(radians(dLon))
                 brng = atan2(x, y)
                 brng = degrees(brng)
-                type_pattern = [type for type in list(RestEnumerations.supportedTypeEnumerations.values()) if
-                                re.fullmatch(type, result.type)]
+                type_pattern = [
+                    type
+                    for type in list(
+                        RestEnumerations.supportedTypeEnumerations.values()
+                    )
+                    if re.fullmatch(type, result.type)
+                ]
                 print(type_pattern)
                 type_pattern = type_pattern[0]
-                index_number = list(RestEnumerations.supportedTypeEnumerations.values()).index(type_pattern)
+                index_number = list(
+                    RestEnumerations.supportedTypeEnumerations.values()
+                ).index(type_pattern)
                 print(index_number)
-                type = list(RestEnumerations.supportedTypeEnumerations.keys())[index_number]
+                type = list(RestEnumerations.supportedTypeEnumerations.keys())[
+                    index_number
+                ]
                 print(type)
-                part1 = result.type.split(type_pattern.split('.')[0])
-                part2 = '-' + part1[1].split(type_pattern.split('.')[1])[0] + '-'
-                attitude = list(RestEnumerations.attitude.keys())[list(RestEnumerations.attitude.values()).index(part2)]
+                part1 = result.type.split(type_pattern.split(".")[0])
+                part2 = "-" + part1[1].split(type_pattern.split(".")[1])[0] + "-"
+                attitude = list(RestEnumerations.attitude.keys())[
+                    list(RestEnumerations.attitude.values()).index(part2)
+                ]
                 if attitude == expectedAttitude or expectedAttitude == "*":
                     pass
                 else:
@@ -924,13 +1192,18 @@ def getGeoObject():
                 print(attitude)
                 # attitude = RestEnumerations.attitude['-'+type.split(type_pattern.split('.')[0])[1].split(type_pattern.split('.')[1])+'-']
 
-                output.append({"latitude": result.point.lat,
-                               "longitude": result.point.lon,
-                               "distance": distance((result.point.lon, result.point.lat), (lon, lat)).m,
-                               "direction": brng,
-                               "type": type,
-                               "attitude": attitude
-                               })
+                output.append(
+                    {
+                        "latitude": result.point.lat,
+                        "longitude": result.point.lon,
+                        "distance": distance(
+                            (result.point.lon, result.point.lat), (lon, lat)
+                        ).m,
+                        "direction": brng,
+                        "type": type,
+                        "attitude": attitude,
+                    }
+                )
             except Exception as e:
                 print(e)
         return json.dumps(output)
@@ -945,6 +1218,7 @@ def postGeoObject():
     try:
         from geopy import Point, distance
         from json import dumps
+
         print("posting geo object")
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
@@ -953,7 +1227,9 @@ def postGeoObject():
             start_point = Point(jsonobj.getlatitude(), jsonobj.getlongitude())
             d = distance.distance(meters=jsondata["distance"])
             if "bearing" in jsondata:
-                end_point = d.destination(point=start_point, bearing=jsondata["bearing"])
+                end_point = d.destination(
+                    point=start_point, bearing=jsondata["bearing"]
+                )
             else:
                 end_point = d.destination(point=start_point, bearing=360)
             jsonobj.setlatitude(end_point.latitude)
@@ -963,7 +1239,7 @@ def postGeoObject():
         print("putting in queue")
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
-        print('put in queue')
+        print("put in queue")
         return simpleCoTObject.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 500
@@ -974,13 +1250,16 @@ def postGeoObject():
 def putGeoObject():
     try:
         from json import dumps
+
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         if "uid" in jsondata:
             jsonobj = JsonController().serialize_geoobject_post(jsondata)
             simpleCoTObject = UpdateSimpleCoTController(jsonobj).getCoTObject()
             simpleCoTObject.modelObject.setuid(jsondata["uid"])
-            simpleCoTObject.setXmlString(XMLCoTController().serialize_model_to_CoT(simpleCoTObject.modelObject))
+            simpleCoTObject.setXmlString(
+                XMLCoTController().serialize_model_to_CoT(simpleCoTObject.modelObject)
+            )
             APIPipe.put(simpleCoTObject)
             return simpleCoTObject.modelObject.getuid(), 200
         else:
@@ -1032,11 +1311,12 @@ def getVideoStream():
 def deleteVideoStream():
     try:
         from json import dumps
+
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_video_stream_delete(jsondata)
         EmergencyObject = SendDeleteVideoStreamController(jsonobj).getCoTObject()
         APIPipe.put(EmergencyObject)
-        return 'success', 200
+        return "success", 200
     except Exception as e:
         return str(e), 500
 
@@ -1047,29 +1327,47 @@ def postVideoStream():
     """this method contains the logic for the endpoints which saves the contents of a new videostream to
     the db and sends a CoT to all connected clients containing stream information."""
     from FreeTAKServer.model.FTSModel.Event import Event
-    from lxml.etree import tostring  # pylint: disable=no-name-in-module; name is in module
+    from lxml.etree import (
+        tostring,
+    )  # pylint: disable=no-name-in-module; name is in module
+
     try:
         jsondata = request.get_json(force=True)
 
         # the following prevents duplicate entries being added to the db
-        url = jsondata["streamAddress"] + ":" + jsondata["streamPort"] + jsondata["streamPath"]
+        url = (
+            jsondata["streamAddress"]
+            + ":"
+            + jsondata["streamPort"]
+            + jsondata["streamPath"]
+        )
         video_streams = dbController.query_videostream()
 
         for video in video_streams:
             if video.url == url:
                 sqlalchemy_obj = dbController.query_CoT(f'uid="{video.PrimaryKey}"')[0]
-                modelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(sqlalchemy_obj,
-                                                                                             Event.VideoStream())
-                xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
+                modelObject = (
+                    SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(
+                        sqlalchemy_obj, Event.VideoStream()
+                    )
+                )
+                xmlString = tostring(
+                    XmlSerializer().from_fts_object_to_format(modelObject)
+                )
                 modelObject.xmlString = xmlString
                 APIPipe.put(modelObject)
-                return "entry already exists in db " + str(video.PrimaryKey) + " resending existing entry", 201
+                return (
+                    "entry already exists in db "
+                    + str(video.PrimaryKey)
+                    + " resending existing entry",
+                    201,
+                )
 
         simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
         print("putting in queue")
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
-        print('put in queue')
+        print("put in queue")
         return simpleCoTObject.modelObject.getuid(), 200
 
     except Exception as e:
@@ -1097,11 +1395,12 @@ def ManageChat():
 def postChatToAll():
     try:
         from json import dumps
+
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()
         APIPipe.put(ChatObject)
-        return 'success', 200
+        return "success", 200
     except Exception as e:
         return str(e), 500
 
@@ -1136,11 +1435,12 @@ def postEmergency():
 def deleteEmergency():
     try:
         from json import dumps
+
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_delete(jsondata)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
         APIPipe.put(EmergencyObject)
-        return 'success', 200
+        return "success", 200
     except Exception as e:
         return str(e), 500
 
@@ -1164,7 +1464,11 @@ def postDroneSensor():
 
         print(DroneObject.xmlString)
         APIPipe.put(DroneObject)
-        if jsonobj.getSPILongitude() or jsonobj.getSPILatitude() or jsonobj.getSPIName():
+        if (
+            jsonobj.getSPILongitude()
+            or jsonobj.getSPILatitude()
+            or jsonobj.getSPIName()
+        ):
             jsonobjSPI = JsonController().serialize_spi_post(jsondata)
             jsonobjSPI.setlatitude(jsonobj.getSPILatitude())
             jsonobjSPI.setlongitude(jsonobj.getSPILongitude())
@@ -1172,7 +1476,15 @@ def postDroneSensor():
             jsonobjSPI.setdroneUid(DroneObject.modelObject.getuid())
             SPISensor = SendSPISensorController(jsonobjSPI).getCoTObject()
             APIPipe.put(SPISensor)
-            return json.dumps({"uid": DroneObject.modelObject.getuid(), "SPI_uid": SPISensor.modelObject.getuid()}), 200
+            return (
+                json.dumps(
+                    {
+                        "uid": DroneObject.modelObject.getuid(),
+                        "SPI_uid": SPISensor.modelObject.getuid(),
+                    }
+                ),
+                200,
+            )
         return DroneObject.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 200
@@ -1197,6 +1509,7 @@ def postSPI():
 @auth.login_required
 def mapvid():
     from json import dumps
+
     jsondata = request.get_json(force=True)
     jsonobj = JsonController().serialize_imagery_video(jsondata)
     ImagerVideoObject = SendImageryVideoController(jsonobj).getCoTObject()
@@ -1208,7 +1521,7 @@ def mapvid():
 @auth.login_required
 def authenticate_user():
     try:
-        print('request made')
+        print("request made")
         username = request.args.get("username")
         password = request.args.get("password")
         try:
@@ -1228,13 +1541,13 @@ def authenticate_user():
             print("done setting to none")
             json_user = user.__dict__
             print(json_user)
-            del (json_user["_sa_class_manager"])
-            del (json_user["_sa_instance_state"])
-            del (json_user["_modified_event"])
-            del (json_user["_decl_class_registry"])
-            print('done defining dict')
+            del json_user["_sa_class_manager"]
+            del json_user["_sa_instance_state"]
+            del json_user["_modified_event"]
+            del json_user["_decl_class_registry"]
+            print("done defining dict")
             return_data = json.dumps({"uid": json_user["uid"]})
-            print('returning data ' + str(return_data))
+            print("returning data " + str(return_data))
             return return_data
         else:
             return None
@@ -1257,15 +1570,18 @@ def ConnectionMessage():
         json = request.json
         modelObject = Event.GeoChat()
         out = ApplyFullJsonController().serializeJsonToModel(modelObject, json)
-        xml = XMLCoTController().serialize_model_to_CoT(out, 'event')
-        from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
+        xml = XMLCoTController().serialize_model_to_CoT(out, "event")
+        from FreeTAKServer.core.RestMessageControllers.SendChatController import (
+            SendChatController,
+        )
+
         rawcot = RawCoT()
         rawcot.xmlString = xml
         rawcot.clientInformation = None
         object = SendChatController(rawcot).getCoTObject()
         object.type = "connmessage"
         APIPipe.put(object.SendGeoChat)
-        return '200', 200
+        return "200", 200
     except Exception as e:
         print(e)
 
@@ -1276,42 +1592,45 @@ def APIUser():
         try:
             if request.method == restMethods.POST:
                 json = request.get_json()
-                dbController.create_APIUser(Username=json['username'], Token=json['token'])
-                return 'success', 200
+                dbController.create_APIUser(
+                    Username=json["username"], Token=json["token"]
+                )
+                return "success", 200
 
             elif request.method == restMethods.DELETE:
                 json = request.get_json()
-                username = json['username']
+                username = json["username"]
                 dbController.remove_APIUser(query=f'Username = "{username}"')
-                return 'success', 200
+                return "success", 200
 
             elif request.method == restMethods.GET:
                 output = dbController.query_APIUser()
                 for i in range(0, len(output)):
                     output[i] = output[i].__dict__
-                    del (output[i]['_sa_instance_state'])
-                    del (output[i]['PrimaryKey'])
-                    del (output[i]['uid'])
+                    del output[i]["_sa_instance_state"]
+                    del output[i]["PrimaryKey"]
+                    del output[i]["uid"]
                 return jsonify(json_list=output), 200
 
         except Exception as e:
             return str(e), 500
     else:
-        return 'endpoint can only be accessed by approved IPs', 401
+        return "endpoint can only be accessed by approved IPs", 401
 
 
 @app.route("/RecentCoT", methods=[restMethods.GET])
 def RecentCoT():
     import time
+
     time.sleep(10)
-    return b'1234'
+    return b"1234"
 
 
 @app.route("/URL", methods=[restMethods.GET])
 def URLGET():
     data = request.args
     print(data)
-    return 'completed', 200
+    return "completed", 200
 
 
 @app.route("/Clients", methods=[restMethods.GET])
@@ -1322,34 +1641,41 @@ def Clients():
             out = CommandPipe.get()
             returnValue = []
             for client in out:
-                returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
+                returnValue.append(
+                    ApplyFullJsonController().serialize_model_to_json(client)
+                )
             dumps = json.dumps(returnValue)
             return dumps
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return "endpoint can only be accessed by approved IPs", 401
     except Exception as e:
         return str(e), 500
 
 
-@app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE])
+@app.route(
+    "/FederationTable",
+    methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE],
+)
 @auth.login_required()
 def FederationTable():
     try:
         import random
+
         if request.method == restMethods.GET:
             output = dbController.query_ActiveFederation()
             for i in range(0, len(output)):
                 output[i] = output[i].__dict__
-                del (output[i]['_sa_instance_state'])
+                del output[i]["_sa_instance_state"]
             output2 = dbController.query_Federation()
             for i in range(0, len(output2)):
                 output2[i] = output2[i].__dict__
-                del (output2[i]['_sa_instance_state'])
+                del output2[i]["_sa_instance_state"]
 
             return jsonify(activeFederations=output, federations=output2), 200
 
         elif request.method == restMethods.POST:
             import uuid
+
             jsondata = json.loads(request.data)
             new_outgoing_federations = jsondata["outgoingFederations"]
             for new_fed in new_outgoing_federations:
@@ -1359,7 +1685,7 @@ def FederationTable():
                     CommandPipe.put((id, "CREATE"))
                 else:
                     pass
-            return '', 200
+            return "", 200
 
         elif request.method == "PUT":
             jsondata = json.loads(request.data)
@@ -1368,7 +1694,9 @@ def FederationTable():
                 old_fed = dbController.query_Federation(f'id = "{fed["id"]}"')[0]
                 old_status = old_fed.status
                 old_id = old_fed.id
-                dbController.update_Federation(column_value=fed, query=f'id = "{fed["id"]}"')
+                dbController.update_Federation(
+                    column_value=fed, query=f'id = "{fed["id"]}"'
+                )
                 if "status" in fed:
                     if fed["status"] == "Enabled":
 
@@ -1383,7 +1711,7 @@ def FederationTable():
                             pass
                     else:
                         pass
-            return '', 200
+            return "", 200
 
         elif request.method == "DELETE":
             jsondata = json.loads(request.data)
@@ -1395,13 +1723,13 @@ def FederationTable():
                 else:
                     pass
                 dbController.remove_Federation(f'id = "{fed["id"]}"')
-            return '', 200
+            return "", 200
 
     except Exception as e:
         return str(e), 500
 
 
-@app.route('/ManageKML/postKML', methods=[restMethods.POST])
+@app.route("/ManageKML/postKML", methods=[restMethods.POST])
 @auth.login_required()
 def create_kml():
     # Make a connection to the MainConfig object
@@ -1416,6 +1744,7 @@ def create_kml():
         from zipfile import ZipFile
         from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
         from geopy import Nominatim
+
         dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
         jsondata = request.get_json(force=True)
         name = jsondata["name"]
@@ -1429,15 +1758,26 @@ def create_kml():
         root.Folder.Placemark[0].append(KML.ExtendedData())
         if jsondata.get("longitude") and jsondata.get("latitude"):
             root.Folder.Placemark[0].append(
-                KML.Point(KML.coordinates(str(jsondata["longitude"]) + "," + str(jsondata["latitude"]))))
+                KML.Point(
+                    KML.coordinates(
+                        str(jsondata["longitude"]) + "," + str(jsondata["latitude"])
+                    )
+                )
+            )
         elif jsondata.get("address"):
             locator = Nominatim(user_agent=str(uuid.uuid4()))
             location = locator.geocode(jsondata.get("address"))
             root.Folder.Placemark[0].append(
-                KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))
+                KML.Point(
+                    KML.coordinates(
+                        str(location.longitude) + "," + str(location.latitude)
+                    )
+                )
+            )
         else:
             root.Folder.Placemark[0].append(
-                KML.Point(KML.coordinates(str(0) + "," + str(0))))
+                KML.Point(KML.coordinates(str(0) + "," + str(0)))
+            )
         attribs = root.Folder.Placemark.ExtendedData[0]
         for key, value in jsondata["body"].items():
             attribs.append(KML.Data(KML.value(value), name=key))
@@ -1452,35 +1792,47 @@ def create_kml():
         data_stringified = etree.tostring(main)
         with open(filepath, mode="wb+") as file:
 
-            with ZipFile(file, mode='a') as zip:
+            with ZipFile(file, mode="a") as zip:
                 print(zip.infolist())
                 uidtemp = uuid.uuid4()
-                if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
+                if "MANIFEST/manifest.xml" not in [
+                    member.filename for member in zip.infolist()
+                ]:
                     manifestXML = Element("MissionPackageManifest", version="2")
                     config = SubElement(manifestXML, "Configuration")
                     SubElement(config, "Parameter", name="name", value=name)
                     SubElement(config, "Parameter", name="uid", value=str(uidtemp))
-                    zip.writestr(str(uidtemp.hex) + "/" + name + ".kml", data_stringified)
+                    zip.writestr(
+                        str(uidtemp.hex) + "/" + name + ".kml", data_stringified
+                    )
                     contents = SubElement(manifestXML, "Contents")
                     for fileName in zip.namelist():
-                        SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
+                        SubElement(
+                            contents, "Content", ignore="false", zipEntry=str(fileName)
+                        )
                     # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
-                    zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
+                    zip.writestr("MANIFEST\\manifest.xml", etree.tostring(manifestXML))
 
                     print(zip.namelist())
                     file.seek(0)
                 else:
                     pass
 
-        openfile = open(str(PurePath(Path(str(directory), name))), mode='rb')
+        openfile = open(str(PurePath(Path(str(directory), name))), mode="rb")
         file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
         openfile.close()
         newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
         os.rename(str(PurePath(Path(directory))), newDirectory)
         fileSize = Path(str(newDirectory), name).stat().st_size
         uid = str(uuid.uuid4())
-        dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
-                                        CreatorUid='server-uid', Size=fileSize)
+        dbController.create_datapackage(
+            uid=uid,
+            Name=name,
+            Hash=file_hash,
+            SubmissionUser="server",
+            CreatorUid="server-uid",
+            Size=fileSize,
+        )
 
         # broacast DP
         broadcast_datapackage(uid)
@@ -1490,10 +1842,11 @@ def create_kml():
         print("exception is " + str(e))
 
 
-@app.route('/BroadcastDataPackage', methods=[restMethods.POST])
+@app.route("/BroadcastDataPackage", methods=[restMethods.POST])
 @auth.login_required()
 def broadcast_datapackage(uid):
     import datetime as dt
+
     DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
     timer = dt.datetime
     now = timer.utcnow()
@@ -1505,8 +1858,11 @@ def broadcast_datapackage(uid):
     now = timer.utcnow()
     zulu = now.strftime(DATETIME_FMT)
     time = zulu
-    from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import SendOtherController
+    from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import (
+        SendOtherController,
+    )
     from FreeTAKServer.model.RawCoT import RawCoT
+
     cot = RawCoT()
     DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
     DPObj = dbController.query_datapackage(f'uid = "{uid}"')[0]
@@ -1516,7 +1872,10 @@ def broadcast_datapackage(uid):
     APIPipe.put(newCoT.getObject())
 
 
-@app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"])
+@app.route(
+    "/DataPackageTable",
+    methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"],
+)
 @auth.login_required()
 def DataPackageTable():
     from pathlib import Path
@@ -1528,25 +1887,25 @@ def DataPackageTable():
         output = dbController.query_datapackage()
         for i in range(0, len(output)):
             output[i] = output[i].__dict__
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['CreatorUid'])
-            del (output[i]['MIMEType'])
-            del (output[i]['uid'])
+            del output[i]["_sa_instance_state"]
+            del output[i]["CreatorUid"]
+            del output[i]["MIMEType"]
+            del output[i]["uid"]
         return jsonify(json_list=output), 200
 
     elif request.method == "DELETE":
         jsondata = json.loads(request.data)
-        Hashes = jsondata['DataPackages']
+        Hashes = jsondata["DataPackages"]
         for hash in Hashes:
-            Hash = hash['hash']
+            Hash = hash["hash"]
             print(Hash)
             obj = dbController.query_datapackage(f'Hash = "{Hash}"')
             print(obj)
             # TODO: make this coherent with constants
             currentPath = config.DataPackageFilePath
-            shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
+            shutil.rmtree(f"{str(currentPath)}/{obj[0].Hash}")
             dbController.remove_datapackage(f'Hash = "{Hash}"')
-        return '200', 200
+        return "200", 200
 
     elif request.method == "POST":
         try:
@@ -1557,18 +1916,24 @@ def DataPackageTable():
             from zipfile import ZipFile
             from defusedxml import ElementTree as etree
             import uuid
-            from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
+            from lxml.etree import (
+                SubElement,
+                Element,
+            )  # pylint: disable=no-name-in-module
+
             dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
             letters = string.ascii_letters
             # uid = ''.join(random.choice(letters) for i in range(4))
             # uid = 'uid-' + str(uid)
             uid = str(uuid.uuid4())
-            filename = request.args.get('filename')
-            creatorUid = request.args.get('creatorUid')
-            file = request.files.getlist('assetfile')[0]
-            with ZipFile(file, mode='a') as zip:
+            filename = request.args.get("filename")
+            creatorUid = request.args.get("creatorUid")
+            file = request.files.getlist("assetfile")[0]
+            with ZipFile(file, mode="a") as zip:
                 print(zip.infolist())
-                if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
+                if "MANIFEST/manifest.xml" not in [
+                    member.filename for member in zip.infolist()
+                ]:
                     manifestXML = Element("MissionPackageManifest", version="2")
                     config = SubElement(manifestXML, "Configuration")
                     SubElement(config, "Parameter", name="uid", value=uid)
@@ -1576,9 +1941,11 @@ def DataPackageTable():
 
                     contents = SubElement(manifestXML, "Contents")
                     for fileName in zip.namelist():
-                        SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
+                        SubElement(
+                            contents, "Content", ignore="false", zipEntry=str(fileName)
+                        )
                     # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
-                    zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
+                    zip.writestr("MANIFEST\\manifest.xml", etree.tostring(manifestXML))
                     print(zip.namelist())
                     file.seek(0)
                 else:
@@ -1592,42 +1959,62 @@ def DataPackageTable():
             file.seek(0)
             filepath = str(PurePath(Path(directory), Path(filename)))
             file.save(filepath)
-            openfile = open(str(PurePath(Path(str(directory), filename))), mode='rb')
+            openfile = open(str(PurePath(Path(str(directory), filename))), mode="rb")
             file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
             openfile.close()
             newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
             os.rename(str(PurePath(Path(directory))), newDirectory)
             fileSize = Path(str(newDirectory), filename).stat().st_size
             if creatorUid == None:
-                callsign = str(dbController.query_user(query=f'uid = "server-uid"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser='server',
-                                                CreatorUid='server-uid', Size=fileSize)
+                callsign = str(
+                    dbController.query_user(
+                        query=f'uid = "server-uid"', column=["callsign"]
+                    )
+                )  # fetchone() gives a tuple, so only grab the first element
+                dbController.create_datapackage(
+                    uid=uid,
+                    Name=filename,
+                    Hash=file_hash,
+                    SubmissionUser="server",
+                    CreatorUid="server-uid",
+                    Size=fileSize,
+                )
             else:
-                callsign = str(dbController.query_user(query=f'uid = f"{creatorUid}"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
-                                                CreatorUid=creatorUid, Size=fileSize)
-            return 'successful', 200
+                callsign = str(
+                    dbController.query_user(
+                        query=f'uid = f"{creatorUid}"', column=["callsign"]
+                    )
+                )  # fetchone() gives a tuple, so only grab the first element
+                dbController.create_datapackage(
+                    uid=uid,
+                    Name=filename,
+                    Hash=file_hash,
+                    SubmissionUser=callsign,
+                    CreatorUid=creatorUid,
+                    Size=fileSize,
+                )
+            return "successful", 200
         except Exception as e:
             return str(e), 500
 
     elif request.method == "PUT":
         updatedata = json.loads(request.data)
-        DataPackages = updatedata['DataPackages']
+        DataPackages = updatedata["DataPackages"]
         for dp in DataPackages:
             updateDict = {}
-            if 'Privacy' in dp:
+            if "Privacy" in dp:
                 updateDict["Privacy"] = int(dp["Privacy"])
             if "Keywords" in dp:
                 updateDict["Keywords"] = dp["Keywords"]
             if "Name" in dp:
                 updateDict["Name"] = dp["Name"]
-            dbController.update_datapackage(query=f'PrimaryKey = {dp["PrimaryKey"]}', column_value=updateDict)
+            dbController.update_datapackage(
+                query=f'PrimaryKey = {dp["PrimaryKey"]}', column_value=updateDict
+            )
         return "success", 200
 
 
-@app.route("/MissionTable", methods=['GET', 'POST', 'DELETE'])
+@app.route("/MissionTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def mission_table():
     try:
@@ -1638,13 +2025,13 @@ def mission_table():
                 "version": "3",
                 "type": "Mission",
                 "data": [],
-                "nodeId": "6ff99444fa124679a3943ee90308a44c9d794c02-e5a5-42b5-b4c8-625203ea1287"
+                "nodeId": "6ff99444fa124679a3943ee90308a44c9d794c02-e5a5-42b5-b4c8-625203ea1287",
             }
             return json.dumps(jsondata)
         elif request.method == "POST":
-            return b'', 200
+            return b"", 200
         elif request.method == "DELETE":
-            return b'', 200
+            return b"", 200
     except Exception as e:
         return e, 500
 
@@ -1655,7 +2042,7 @@ def excheck_table():
     return ExCheckController().excheck_table(request, APIPipe)
 
 
-@app.route('/checkStatus', methods=[restMethods.GET])
+@app.route("/checkStatus", methods=[restMethods.GET])
 @auth.login_required()
 def check_status():
     try:
@@ -1663,22 +2050,29 @@ def check_status():
         if request.remote_addr in config.AllowedCLIIPs:
             CommandPipe.put([functionNames.checkStatus])
             FTSServerStatusObject = CommandPipe.get()
-            out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
+            out = ApplyFullJsonController().serialize_model_to_json(
+                FTSServerStatusObject
+            )
             return json.dumps(out), 200
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return "endpoint can only be accessed by approved IPs", 401
     except Exception as e:
         return str(e), 500
 
 
-@app.route('/manageAPI/getHelp', methods=[restMethods.GET])
+@app.route("/manageAPI/getHelp", methods=[restMethods.GET])
 def help():
     try:
         from flask import url_for
-        message = {"APIVersion": str(config.APIVersion),
-                   "SupportedEndpoints": [url_for(i.endpoint, **(i.defaults or {})) for i in app.url_map.iter_rules() if
-                                          i.endpoint != 'static']
-                   }
+
+        message = {
+            "APIVersion": str(config.APIVersion),
+            "SupportedEndpoints": [
+                url_for(i.endpoint, **(i.defaults or {}))
+                for i in app.url_map.iter_rules()
+                if i.endpoint != "static"
+            ],
+        }
         return json.dumps(message)
     except Exception as e:
         return e, 500
@@ -1691,6 +2085,7 @@ def changeStatus(jsonmessage):
     mappings = {"on": "start", "off": "stop", "": ""}
     try:
         import json
+
         if not jsonmessage:
             jsonmessage = json.loads(request.data)
         FTSObject = FTS()
@@ -1701,7 +2096,7 @@ def changeStatus(jsonmessage):
             try:
                 FTSObject.CoTService.CoTServicePort = int(CoTService.get(jsonVars.PORT))
             except:
-                FTSObject.CoTService.CoTServicePort = ''
+                FTSObject.CoTService.CoTServicePort = ""
             FTSObject.CoTService.CoTServiceStatus = mappings[CoTService.get("status")]
         else:
             pass
@@ -1710,10 +2105,14 @@ def changeStatus(jsonmessage):
 
             DPService = json.get(jsonVars.DATAPACKAGESERVICE)
             try:
-                FTSObject.TCPDataPackageService.TCPDataPackageServicePort = int(DPService.get(jsonVars.PORT))
+                FTSObject.TCPDataPackageService.TCPDataPackageServicePort = int(
+                    DPService.get(jsonVars.PORT)
+                )
             except:
-                FTSObject.TCPDataPackageService.TCPDataPackageServicePort = ''
-            FTSObject.TCPDataPackageService.TCPDataPackageServiceStatus = mappings[DPService.get("status")]
+                FTSObject.TCPDataPackageService.TCPDataPackageServicePort = ""
+            FTSObject.TCPDataPackageService.TCPDataPackageServiceStatus = mappings[
+                DPService.get("status")
+            ]
 
         else:
             pass
@@ -1722,10 +2121,14 @@ def changeStatus(jsonmessage):
 
             DPService = json.get(jsonVars.SSLDATAPACKAGESERVICE)
             try:
-                FTSObject.SSLDataPackageService.SSLDataPackageServicePort = int(DPService.get(jsonVars.PORT))
+                FTSObject.SSLDataPackageService.SSLDataPackageServicePort = int(
+                    DPService.get(jsonVars.PORT)
+                )
             except:
-                FTSObject.SSLDataPackageService.SSLDataPackageServicePort = ''
-            FTSObject.SSLDataPackageService.SSLDataPackageServiceStatus = mappings[DPService.get("status")]
+                FTSObject.SSLDataPackageService.SSLDataPackageServicePort = ""
+            FTSObject.SSLDataPackageService.SSLDataPackageServiceStatus = mappings[
+                DPService.get("status")
+            ]
 
         else:
             pass
@@ -1734,10 +2137,14 @@ def changeStatus(jsonmessage):
 
             SSLCoTservice = json[jsonVars.SSLCOTSERVICE]
             try:
-                FTSObject.SSLCoTService.SSLCoTServicePort = int(SSLCoTservice.get(jsonVars.PORT))
+                FTSObject.SSLCoTService.SSLCoTServicePort = int(
+                    SSLCoTservice.get(jsonVars.PORT)
+                )
             except:
-                FTSObject.SSLCoTService.SSLCoTServicePort = ''
-            FTSObject.SSLCoTService.SSLCoTServiceStatus = mappings[SSLCoTservice.get("status")]
+                FTSObject.SSLCoTService.SSLCoTServicePort = ""
+            FTSObject.SSLCoTService.SSLCoTServiceStatus = mappings[
+                SSLCoTservice.get("status")
+            ]
 
         else:
             pass
@@ -1747,11 +2154,13 @@ def changeStatus(jsonmessage):
             FederationServerService = json.get(jsonVars.FEDERATIONSERVERSERVICE)
             try:
                 FTSObject.FederationServerService.FederationServerServicePort = int(
-                    FederationServerService.get(jsonVars.PORT))
+                    FederationServerService.get(jsonVars.PORT)
+                )
             except:
-                FTSObject.FederationServerService.FederationServerServicePort = ''
+                FTSObject.FederationServerService.FederationServerServicePort = ""
             FTSObject.FederationServerService.FederationServerServiceStatus = mappings[
-                FederationServerService.get('status')]
+                FederationServerService.get("status")
+            ]
 
         else:
             pass
@@ -1760,10 +2169,14 @@ def changeStatus(jsonmessage):
 
             RESTAPISERVICE = json.get(jsonVars.RESTAPISERVICE)
             try:
-                FTSObject.RestAPIService.RestAPIServicePort = int(RESTAPISERVICE.get(jsonVars.PORT))
+                FTSObject.RestAPIService.RestAPIServicePort = int(
+                    RESTAPISERVICE.get(jsonVars.PORT)
+                )
             except:
-                FTSObject.RestAPIService.RestAPIServicePort = ''
-            FTSObject.RestAPIService.RestAPIServiceStatus = mappings[RESTAPISERVICE.get("status")]
+                FTSObject.RestAPIService.RestAPIServicePort = ""
+            FTSObject.RestAPIService.RestAPIServiceStatus = mappings[
+                RESTAPISERVICE.get("status")
+            ]
 
         else:
             pass
@@ -1771,10 +2184,10 @@ def changeStatus(jsonmessage):
         FTSObject.TCPDataPackageService.TCPDataPackageServiceIP = ip
         CommandPipe.put([functionNames.Status, FTSObject])
         out = CommandPipe.get()
-        return '200', 200
+        return "200", 200
 
     except Exception as e:
-        return '500', 500
+        return "500", 500
 
 
 def submitData(dataRaw):
@@ -1788,17 +2201,17 @@ def submitData(dataRaw):
 
 def emitUpdates(Updates):
     data = [SimpleClient()]
-    data[0].callsign = ''
-    data[0].team = ''
-    data[0].ip = ''
+    data[0].callsign = ""
+    data[0].team = ""
+    data[0].ip = ""
     returnValue = []
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast=True)
+    socketio.emit("up", json.dumps(returnValue), broadcast=True)
     data = Updates
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast=True)
+    socketio.emit("up", json.dumps(returnValue), broadcast=True)
     return 1
 
 
@@ -1807,7 +2220,7 @@ class RestAPI:
         pass
 
     def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
-        print('running api')
+        print("running api")
         init_config()
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
@@ -1826,5 +2239,3 @@ class RestAPI:
             else:
                 setattr(model, key, value)
         return model
-
-

@@ -5,9 +5,10 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 
+
 class ExCheckChecklist(Base):
     __tablename__ = "ExCheckChecklist"
-    PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
+    PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
     startTime = Column(DateTime)
     creatorUid = Column(String(100))
     description = Column(String(100))
@@ -15,4 +16,4 @@ class ExCheckChecklist(Base):
     callsign = Column(String(100))
     uid = Column(String(100))
     filename = Column(String(100))
-    template_id = Column(Integer, ForeignKey('ExCheck.PrimaryKey'))
+    template_id = Column(Integer, ForeignKey("ExCheck.PrimaryKey"))

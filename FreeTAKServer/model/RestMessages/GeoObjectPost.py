@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.GeoObject import GeoObject, RestEnumerations
 
+
 class GeoObjectPost(GeoObject):
     def __init__(self):
         pass
@@ -63,4 +64,3 @@ class GeoObjectPost(GeoObject):
 
     def gettimeout(self):
         return self.timeout
-

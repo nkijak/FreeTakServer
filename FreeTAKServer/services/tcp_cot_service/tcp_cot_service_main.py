@@ -19,7 +19,9 @@ from digitalpy.core.parsing.formatter import Formatter
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from .controllers.TCPSocketController import TCPSocketController
 from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
-from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
+from FreeTAKServer.core.connection.ActiveThreadsController import (
+    ActiveThreadsController,
+)
 from FreeTAKServer.core.connection.ClientInformationController import (
     ClientInformationController,
 )
@@ -49,7 +51,10 @@ from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
 
 from .configuration.tcp_cot_service_constants import SERVICE_NAME
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
+
 loggingConstants = LoggingConstants()
 loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
 logger = CreateLoggerController(
@@ -68,8 +73,27 @@ class TCPCoTServiceMain(DigitalPyService):
     """this service is responsible for handling the CoT listener for XML"""
 
     # TODO: prevent repeat add user
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+    def __init__(
+        self,
+        service_id: str,
+        subject_address: str,
+        subject_port: int,
+        subject_protocol,
+        integration_manager_address: str,
+        integration_manager_port: int,
+        integration_manager_protocol: str,
+        formatter: Formatter,
+    ):
+        super().__init__(
+            service_id,
+            subject_address,
+            subject_port,
+            subject_protocol,
+            integration_manager_address,
+            integration_manager_port,
+            integration_manager_protocol,
+            formatter,
+        )
         self.logger = logger
 
         # Server info
@@ -102,17 +126,15 @@ class TCPCoTServiceMain(DigitalPyService):
         RestAPIPipe,
         clientDataRecvPipe,
         factory,
-        tracing_provider_instance
+        tracing_provider_instance,
     ):
         try:
             # configure the object factory with the passed factory instance
             ObjectFactory.configure(factory)
 
             # instantiate the tracer instance for this service
-            self.tracer: Tracer = tracing_provider_instance.create_tracer(
-                SERVICE_NAME
-            )
-            
+            self.tracer: Tracer = tracing_provider_instance.create_tracer(SERVICE_NAME)
+
             actionmapper = ObjectFactory.get_instance("actionMapper")
             # subscribe to responses originating from this controller
             actionmapper.add_topic(
@@ -148,10 +170,10 @@ class TCPCoTServiceMain(DigitalPyService):
             )
         except Exception as ex:
             return ex
-        
+
     @property
     def connection_type(self):
-        return ConnectionTypes.TCP    
+        return ConnectionTypes.TCP
 
     def remove_service_user(self, clientInformation: ClientInformation):
         """Generates the presence object from the
@@ -298,7 +320,9 @@ class TCPCoTServiceMain(DigitalPyService):
                         client_id in user_dict.keys()
                         and len(self.client_information_queue[client_id]) == 2
                     ):
-                        self.client_information_queue[client_id][1] = user_dict[client_id]
+                        self.client_information_queue[client_id][1] = user_dict[
+                            client_id
+                        ]
 
                     # if the entry isn't present in FTS core than the client will be disconnected
                     # and deleted to maintain single source of truth
@@ -386,7 +410,9 @@ class TCPCoTServiceMain(DigitalPyService):
         :return: ClientInformation object for the newly connected client, or -1 if there was an error
         """
         try:
-            from FreeTAKServer.core.persistence.EventTableController import EventTableController
+            from FreeTAKServer.core.persistence.EventTableController import (
+                EventTableController,
+            )
 
             self.logger.info(loggingConstants.CLIENTCONNECTED)
 
@@ -395,7 +421,9 @@ class TCPCoTServiceMain(DigitalPyService):
                 raw_connection_information, None
             )
             if clientInformation == -1:
-                self.logger.info("Client had invalid connection information and has been disconnected")
+                self.logger.info(
+                    "Client had invalid connection information and has been disconnected"
+                )
                 return -1
 
             # Add client to database
@@ -404,7 +432,9 @@ class TCPCoTServiceMain(DigitalPyService):
                     cn = "placeholder"
                 else:
                     cn = None
-                CoT_row = EventTableController().convert_model_to_row(clientInformation.modelObject)
+                CoT_row = EventTableController().convert_model_to_row(
+                    clientInformation.modelObject
+                )
                 self.dbController.create_user(
                     uid=clientInformation.modelObject.uid,
                     callsign=clientInformation.modelObject.detail.contact.callsign,
@@ -421,7 +451,10 @@ class TCPCoTServiceMain(DigitalPyService):
             self.add_service_user(clientInformation=clientInformation)
 
             # Add client info to queue
-            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
+            self.client_information_queue[clientInformation.modelObject.uid] = [
+                clientInformation.socket,
+                clientInformation,
+            ]
             # Update the geo manager controller with the new client information
             GeoManagerController.update_users(self.client_information_queue)
             self.logger.debug("Client added")
@@ -441,7 +474,6 @@ class TCPCoTServiceMain(DigitalPyService):
             return clientInformation
         except Exception as e:
             self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR)
-
 
     def dataReceived(self, raw_cot: RawCoT):
         """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
@@ -570,7 +602,9 @@ class TCPCoTServiceMain(DigitalPyService):
         self.get_client_information()
         self.sent_message_count += 1
         self.messages_to_core_count += 1
-        self.send_message(disconnect.getObject().clientInformation, disconnect.getObject())
+        self.send_message(
+            disconnect.getObject().clientInformation, disconnect.getObject()
+        )
 
     def disconnect_socket(self, sock: socket.socket) -> None:
         """this method is responsible for disconnecting all socket objects
@@ -626,7 +660,7 @@ class TCPCoTServiceMain(DigitalPyService):
         # it should be handled by the main loop which listens for all responses
         # with a request source of Orchestrator
         self.subject_send_request(request, APPLICATION_PROTOCOL)
-        
+
         # one is returned so that the message is ignored and can be processed later once the
         # response is received by the component receiver
         return 1
@@ -740,11 +774,11 @@ class TCPCoTServiceMain(DigitalPyService):
 
     def send_message(self, sender, message, use_share_pipe=True):
         return SendDataController().sendDataInQueue(
-                    sender,
-                    message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
-                    self.client_information_queue,
-                    self.CoTSharePipe,
-                )
+            sender,
+            message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+            self.client_information_queue,
+            self.CoTSharePipe,
+        )
 
     def monitor_raw_cot(self, data: RawCoT) -> object:
         """
@@ -761,7 +795,9 @@ class TCPCoTServiceMain(DigitalPyService):
             if isinstance(data, int):
                 return None
             else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data, self.client_information_queue)
+                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(
+                    data, self.client_information_queue
+                )
                 handler_name, handler_data = cot
                 handler = getattr(self, handler_name, None)
                 if handler is None:
@@ -769,7 +805,9 @@ class TCPCoTServiceMain(DigitalPyService):
                     return -1
                 output = handler(handler_data)
                 if output != 1:  # when the process is a disconnect the output is 1
-                    output.clientInformation = self.client_information_queue[data.clientInformation][1]
+                    output.clientInformation = self.client_information_queue[
+                        data.clientInformation
+                    ][1]
                 return output
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
@@ -859,9 +897,7 @@ class TCPCoTServiceMain(DigitalPyService):
                             print(self.connection_received)
                             receiveConnection = pool.apply_async(
                                 ReceiveConnections().listen,
-                                (
-                                    sock,
-                                ),
+                                (sock,),
                             )
                             receiveconntimeoutcount = datetime.datetime.now()
                             lastprint = datetime.datetime.now()
@@ -1010,7 +1046,9 @@ class TCPCoTServiceMain(DigitalPyService):
             self.messages_from_core_count += 1
             if hasattr(modelData, "clientInformation"):
                 self.sent_message_count += 1
-                self.send_message(modelData.clientInformation, modelData, use_share_pipe=False)
+                self.send_message(
+                    modelData.clientInformation, modelData, use_share_pipe=False
+                )
             else:
                 self.sent_message_count += 1
                 self.send_message(None, modelData, use_share_pipe=False)
@@ -1023,11 +1061,13 @@ class TCPCoTServiceMain(DigitalPyService):
                 span.add_event("outbound cot received")
                 if hasattr(message[1], "clientInformation"):
                     self.sent_message_count += 1
-                    self.send_message(message[1].clientInformation, message[1], use_share_pipe=False)
+                    self.send_message(
+                        message[1].clientInformation, message[1], use_share_pipe=False
+                    )
                 else:
                     self.sent_message_count += 1
                     self.send_message(None, message[1], use_share_pipe=False)
-    
+
     def handle_regular_data(self, clientDataOutput: List[RawCoT]):
         """
         Handle "regular" data being sent by clients. Regular data is data that is neither a new connection nor a disconnection.
@@ -1062,7 +1102,9 @@ class TCPCoTServiceMain(DigitalPyService):
                         self.get_client_information()
                         self.sent_message_count += 1
                         self.messages_to_core_count += 1
-                        output = self.send_message(CoTOutput.clientInformation, CoTOutput)
+                        output = self.send_message(
+                            CoTOutput.clientInformation, CoTOutput
+                        )
 
                         # Check if the message was sent successfully
                         if self.checkOutput(output) and not isinstance(output, tuple):
@@ -1070,21 +1112,26 @@ class TCPCoTServiceMain(DigitalPyService):
                             pass
                         elif isinstance(output, tuple):
                             # There was an issue sending the message, so disconnect the client
-                            self.logger.error("Issue sending data to client, now disconnecting")
+                            self.logger.error(
+                                "Issue sending data to client, now disconnecting"
+                            )
                             self.clientDisconnected(output[1])
                         else:
                             # There was an issue sending the message
-                            self.logger.error(f"Send data failed with data {CoTOutput.xmlString} from client {CoTOutput.clientInformation.modelObject.detail.contact.callsign}")
+                            self.logger.error(
+                                f"Send data failed with data {CoTOutput.xmlString} from client {CoTOutput.clientInformation.modelObject.detail.contact.callsign}"
+                            )
                     else:
                         # The CoT data is invalid, raise an exception
                         raise Exception("Error in general data processing")
                 except Exception as e:
-                    self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
+                    self.logger.info(
+                        f"Exception in client data processing within main run function {e} data is {CoTOutput}"
+                    )
         except Exception as e:
             self.logger.info(f"Error iterating client data output {e}")
             return -1
         return 1
-
 
     def handle_connection_data(self, receive_connection_output: RawCoT) -> None:
         """this method should be called to initiate the process for receiving new connection data

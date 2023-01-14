@@ -1,13 +1,13 @@
 class checklistDetails:
     def __init__(self):
-        self.name = ''
-        self.uid = ''
-        self.description = ''
-        self.startTime = ''
-        self.creatorUid = ''
-        self.creatorCallsign = ''
+        self.name = ""
+        self.uid = ""
+        self.description = ""
+        self.startTime = ""
+        self.creatorUid = ""
+        self.creatorCallsign = ""
 
-    def setname(self, name = None):
+    def setname(self, name=None):
         self.name = name
 
     def getname(self):

@@ -1,6 +1,8 @@
 from typing import Dict
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.CreateLoggerController import (
+    CreateLoggerController,
+)
 from FreeTAKServer.model.RawCoT import RawCoT
 
 loggingConstants = LoggingConstants(log_name="FTS_SendDataController")

@@ -9,7 +9,7 @@ class ChatVariables:
     @classmethod
     def geochat(cls):
         cls.MESSAGEID = None
-        cls.SENDERCALLSIGN = 'SERVER-UID'
+        cls.SENDERCALLSIGN = "SERVER-UID"
         cls.ID = "All Chat Rooms"
         cls.PARENT = None
         cls.CHATROOM = "All Chat Rooms"

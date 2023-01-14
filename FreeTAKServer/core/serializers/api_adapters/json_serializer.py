@@ -5,8 +5,8 @@ from FreeTAKServer.model.FTSModel.Event import Event
 
 # TODO: clean up this whole class
 
-class JsonSerializer(SerializerAbstract):
 
+class JsonSerializer(SerializerAbstract):
     def from_format_to_fts_object(self, object: dict, FTSObject: Event) -> Event:
         for key, value in object.items():
             if type(value) is dict:
@@ -30,20 +30,27 @@ class JsonSerializer(SerializerAbstract):
             else:
                 self._handle_attribute(FTSObject, key, value, name)
 
-    def _get_method_in_method_list(self, method_list: List[callable], expected_class_name: str = None) -> callable:
+    def _get_method_in_method_list(
+        self, method_list: List[callable], expected_class_name: str = None
+    ) -> callable:
         if len(method_list) == 1:
             return method_list[0]
 
         elif len(method_list) == 0:
-            raise AttributeError(expected_class_name + ' does not have specified attribute')
+            raise AttributeError(
+                expected_class_name + " does not have specified attribute"
+            )
 
         elif len(method_list) > 1 and expected_class_name is not None:
             for method in method_list:
-                if method.__self__.__class__.__name__.lower() == expected_class_name.lower():
+                if (
+                    method.__self__.__class__.__name__.lower()
+                    == expected_class_name.lower()
+                ):
                     return method
                 else:
                     pass
-            raise AttributeError('invalid json')
+            raise AttributeError("invalid json")
 
         else:
-            raise AttributeError('invalid json')
+            raise AttributeError("invalid json")

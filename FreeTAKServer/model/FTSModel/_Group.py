@@ -1,5 +1,9 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.model.FTSModelVariables._GroupVariables import _GroupVariables as vars
+from FreeTAKServer.model.FTSModelVariables._GroupVariables import (
+    _GroupVariables as vars,
+)
+
+
 class _Group(FTSProtocolObject):
     def __init__(self):
         self.name = None

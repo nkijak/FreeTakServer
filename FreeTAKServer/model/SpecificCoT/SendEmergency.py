@@ -1,11 +1,12 @@
 from .SpecificCoTAbstract import SpecificCoTAbstract
 
+
 class SendEmergency(SpecificCoTAbstract):
     def __init__(self):
         self.define_variables()
-        self.setType('Emergency')
+        self.setType("Emergency")
         self.setPlaceInternalArray(True)
-        self.setStatus('')
+        self.setStatus("")
 
     def setPlaceInternalArray(self, placeInternalArray):
         self.placeInternalArray = placeInternalArray

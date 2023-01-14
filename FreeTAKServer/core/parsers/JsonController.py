@@ -9,6 +9,7 @@ from FreeTAKServer.model.RestMessages.SPISensor import SPISensor
 from FreeTAKServer.model.RestMessages.ImageryVideo import ImageryVideo
 from FreeTAKServer.model.RestMessages.VideoStreamDelete import VideoStreamDelete
 
+
 class JsonController:
     def __init__(self):
         pass
@@ -35,7 +36,7 @@ class JsonController:
     def serialize_chat_post(self, json):
         object = ChatPost()
         return self.serialize_json_to_object(object, json)
-    
+
     def serialize_route_post(self, json):
         object = RoutePost()
         return self.serialize_json_to_object(object, json)
@@ -61,7 +62,7 @@ class JsonController:
             s = dir(object)
             if key in dir(object):
 
-                setter = getattr(object, 'set'+str(key))
+                setter = getattr(object, "set" + str(key))
                 setter(json[key])
 
             else:

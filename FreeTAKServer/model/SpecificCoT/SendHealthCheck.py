@@ -1,4 +1,4 @@
 class SendHealthCheck:
     def __init__(self):
-        self.xmlString = ''
-        self.clientInformation = ''
+        self.xmlString = ""
+        self.clientInformation = ""

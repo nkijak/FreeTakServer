@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 class Sensor(Base):
 
-    __tablename__ = 'Sensor'
+    __tablename__ = "Sensor"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="sensor")
     elevation = Column(String(100))

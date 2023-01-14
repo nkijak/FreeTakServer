@@ -8,67 +8,81 @@ class RestAPIVariables:
         pass
 
     def function_names(self):
-        self.Status = 'start_all'
-        self.Clients = 'show_users'
-        self.checkStatus = 'check_server_status'
+        self.Status = "start_all"
+        self.Clients = "show_users"
+        self.checkStatus = "check_server_status"
 
     def json_vars(self):
-        self.COTSERVICE = 'TCP_CoT_service'
-        self.DATAPACKAGESERVICE = 'TCP_DataPackage_service'
-        self.SSLCOTSERVICE = 'SSL_CoT_service'
-        self.SSLDATAPACKAGESERVICE = 'SSL_DataPackage_service'
-        self.FEDERATIONCLIENTSERVICE = 'Federation_Client_service'
-        self.FEDERATIONSERVERSERVICE = 'Federation_server_service'
-        self.RESTAPISERVICE = 'Rest_API_service'
-        self.IP = 'ip'
-        self.PORT = 'port'
-        self.STATUS = 'status'
+        self.COTSERVICE = "TCP_CoT_service"
+        self.DATAPACKAGESERVICE = "TCP_DataPackage_service"
+        self.SSLCOTSERVICE = "SSL_CoT_service"
+        self.SSLDATAPACKAGESERVICE = "SSL_DataPackage_service"
+        self.FEDERATIONCLIENTSERVICE = "Federation_Client_service"
+        self.FEDERATIONSERVERSERVICE = "Federation_server_service"
+        self.RESTAPISERVICE = "Rest_API_service"
+        self.IP = "ip"
+        self.PORT = "port"
+        self.STATUS = "status"
 
     def rest_methods(self):
-        self.POST = 'POST'
-        self.GET = 'GET'
-        self.DELETE = 'DELETE'
+        self.POST = "POST"
+        self.GET = "GET"
+        self.DELETE = "DELETE"
 
     def default_values(self):
         self.defaultIP = "127.0.0.1"
         self.defaultPort = 80
-        self.defaultCoTIP = '0.0.0.0'
+        self.defaultCoTIP = "0.0.0.0"
         self.defaultCoTPort = 15777
-        self.defaultCoTStatus = 'start'
-        self.defaultDataPackageIP = '0.0.0.0'
+        self.defaultCoTStatus = "start"
+        self.defaultDataPackageIP = "0.0.0.0"
         self.defaultDataPackagePort = 8080
-        self.defaultDataPackageStatus = 'start'
-        self.defaultSSLCoTIP = '0.0.0.0'
+        self.defaultDataPackageStatus = "start"
+        self.defaultSSLCoTIP = "0.0.0.0"
         self.defaultSSLCoTPort = 15778
-        self.defaultSSLCoTStatus = 'start'
-        self.defaultFederationClientIP = '0.0.0.0'
+        self.defaultSSLCoTStatus = "start"
+        self.defaultFederationClientIP = "0.0.0.0"
         self.defaultFederationClientPort = 9000
-        self.defaultFederationClientStatus = ''
-        self.defaultFederationServerIP = '0.0.0.0'
+        self.defaultFederationClientStatus = ""
+        self.defaultFederationServerIP = "0.0.0.0"
         self.defaultFederationServerPort = 9000
-        self.defaultFederationServerStatus = ''
+        self.defaultFederationServerStatus = ""
 
     def json_content(self):
-        self.JsonStatusStartAll = {"CoTService":
-                                   {"IP": self.getdefaultCoTIP(), "PORT": self.getdefaultCoTPort(), "STATUS": self.getdefaultCoTStatus()},
-                               "TCPDataPackageService":
-                                   {"IP": self.getdefaultDataPackageIP(), "PORT": self.getdefaultDataPackagePort(), "STATUS": self.getdefaultDataPackageStatus()},
-                                   "SSLCoTService":
-                                       {"IP":self.getdefaultSSLCoTIP(), "PORT": self.getdefaultSSLCoTPort(), "STATUS": self.getdefaultSSLCoTStatus()},
-                                   "FederationClientService":
-                                       {"IP":self.getdefaultFederationClientIP(), "PORT": self.getdefaultFederationClientPort(), "STATUS": self.getdefaultFederationClientStatus()},
-                                   "FederationServerService":
-                                       {"IP":self.getdefaultFederationServerIP(), "PORT": self.getdefaultFederationServerPort(), "STATUS": self.getdefaultFederationServerStatus()}}
-        self.JsonStatusStopAll = {"CoTService":
-                                      {"STATUS": "stop"},
-                                  "TCPDataPackageService":
-                                      {"STATUS": "stop"},
-                                  "SSLCoTService":
-                                      {"STATUS": "stop"},
-                                  "FederationClientService":
-                                      {"STATUS": "stop"},
-                                  "FederationServerService":
-                                      {"STATUS": "stop"}}
+        self.JsonStatusStartAll = {
+            "CoTService": {
+                "IP": self.getdefaultCoTIP(),
+                "PORT": self.getdefaultCoTPort(),
+                "STATUS": self.getdefaultCoTStatus(),
+            },
+            "TCPDataPackageService": {
+                "IP": self.getdefaultDataPackageIP(),
+                "PORT": self.getdefaultDataPackagePort(),
+                "STATUS": self.getdefaultDataPackageStatus(),
+            },
+            "SSLCoTService": {
+                "IP": self.getdefaultSSLCoTIP(),
+                "PORT": self.getdefaultSSLCoTPort(),
+                "STATUS": self.getdefaultSSLCoTStatus(),
+            },
+            "FederationClientService": {
+                "IP": self.getdefaultFederationClientIP(),
+                "PORT": self.getdefaultFederationClientPort(),
+                "STATUS": self.getdefaultFederationClientStatus(),
+            },
+            "FederationServerService": {
+                "IP": self.getdefaultFederationServerIP(),
+                "PORT": self.getdefaultFederationServerPort(),
+                "STATUS": self.getdefaultFederationServerStatus(),
+            },
+        }
+        self.JsonStatusStopAll = {
+            "CoTService": {"STATUS": "stop"},
+            "TCPDataPackageService": {"STATUS": "stop"},
+            "SSLCoTService": {"STATUS": "stop"},
+            "FederationClientService": {"STATUS": "stop"},
+            "FederationServerService": {"STATUS": "stop"},
+        }
         self.JsonStatusStartCoTService = {}
 
     def setJsonStatusStartAll(self, JsonStatusStartAll):
@@ -125,13 +139,13 @@ class RestAPIVariables:
 
     def getdefaultDataPackagePort(self):
         return self.defaultDataPackagePort
-    
+
     def setdefaultDataPackageStatus(self, defaultDataPackageStatus):
         self.defaultDataPackageStatus = defaultDataPackageStatus
 
     def getdefaultDataPackageStatus(self):
         return self.defaultDataPackageStatus
-    
+
     def setdefaultFederationClientIP(self, defaultFederationClientIP):
         self.defaultFederationClientIP = defaultFederationClientIP
 
@@ -143,7 +157,7 @@ class RestAPIVariables:
 
     def getdefaultFederationClientPort(self):
         return self.defaultFederationClientPort
-    
+
     def setdefaultFederationClientStatus(self, defaultFederationClientStatus):
         self.defaultFederationClientStatus = defaultFederationClientStatus
 
@@ -161,7 +175,7 @@ class RestAPIVariables:
 
     def getdefaultFederationServerPort(self):
         return self.defaultFederationServerPort
-    
+
     def setdefaultFederationServerStatus(self, defaultFederationServerStatus):
         self.defaultFederationServerStatus = defaultFederationServerStatus
 

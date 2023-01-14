@@ -1,17 +1,17 @@
 class RestEnumerations:
-    '''
+    """
     this class contains enumeration/dicts for the rest API
-    '''
+    """
 
-    '''
+    """
     used when creating a unit point on map
-    '''
+    """
     teams = {
         "Cyan": "Cyan",
-        'Red': 'Red',
-        'Yellow': 'Yellow',
-        'Green': 'Green',
-        'Blue': 'Blue'
+        "Red": "Red",
+        "Yellow": "Yellow",
+        "Green": "Green",
+        "Blue": "Blue",
     }
 
     SquadTypes = {
@@ -24,18 +24,16 @@ class RestEnumerations:
         "Gnd Combat Infantry Recon": "a-.-G-U-C-R",
         "Gnd Combat Infantry anti Tank": "a-.-G-U-C-A-A",
         "Gnd Combat Infantry air defense": "a-.-G-U-C-D",
-        "Gnd Combat Infantry Engineer": "a-.-G-U-C-E"
+        "Gnd Combat Infantry Engineer": "a-.-G-U-C-E",
     }
 
-    '''
+    """
     used when creating a shape
-    '''
-    otherTypes = {
-        "Ground": "a-.-G"
-    }
+    """
+    otherTypes = {"Ground": "a-.-G"}
 
     supportedTypeEnumerations = {}
-    
+
     supportedTypeEnumerations.update(otherTypes)
     supportedTypeEnumerations.update(SquadTypes)
 
@@ -83,11 +81,12 @@ class RestEnumerations:
         "tadil": "m-r-t",
         "tadila": "m-r-t-a",
         "tadilb": "m-r-t-b",
-        "tadilj": "m-r-t-j"}
+        "tadilj": "m-r-t-j",
+    }
 
-    '''
+    """
     inserted into COTTYPE
-    '''
+    """
     attitude = {
         "friend": "a-f-",
         "friendly": "a-f-",
@@ -99,11 +98,12 @@ class RestEnumerations:
         "suspect": "a-s-",
         "joker": "a-j-",
         "faker": "a-k-",
-        "atoms": "a-"}
+        "atoms": "a-",
+    }
 
-    '''
+    """
     the base types without an id
-    '''
+    """
     geoObject = {
         "Air Air Track": "a-.-A",
         "Air Civ": "a-.-A-C",
@@ -1102,4 +1102,5 @@ class RestEnumerations:
         "KNOWN INSURGENT VEHICLE": "b-r-.-O-I-I",
         "DRUG VEHICLE": "b-r-.-O-I-D",
         "INTERNAL SECURITY FORCE": "b-r-.-O-I-F",
-        "NON-COT OBJECT": "b-x.*"}
+        "NON-COT OBJECT": "b-x.*",
+    }

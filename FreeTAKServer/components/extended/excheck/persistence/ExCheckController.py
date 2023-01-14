@@ -1,20 +1,29 @@
 from FreeTAKServer.components.extended.excheck.persistence.ExCheck import ExCheck
 from FreeTAKServer.model.SQLAlchemy.ExCheckData import ExCheckData
-from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import templateInstanceContents
+from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import (
+    templateInstanceContents,
+)
 from FreeTAKServer.core.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
 from sqlalchemy.sql import text
-unsuportedAttribs = ['_sa_instance_state']
-#TODO: move out all serializers into a serializers controller
+
+unsuportedAttribs = ["_sa_instance_state"]
+# TODO: move out all serializers into a serializers controller
+
 
 class ExCheckController(TableController):
-
     def __init__(self):
         self.table = ExCheck
 
     def queryChildren(self, query, columns, session):
         from FreeTAKServer.model.SQLAlchemy.ExCheckData import ExCheckData
-        output = session.query(self.table).join(ExCheckData, self.table.data).filter(text(query)).all()
+
+        output = (
+            session.query(self.table)
+            .join(ExCheckData, self.table.data)
+            .filter(text(query))
+            .all()
+        )
         return output
 
     def create(self, session, object):
@@ -27,7 +36,7 @@ class ExCheckController(TableController):
             exCheck_row = ExCheck()
             for attribName, attribValue in modelObject.__dict__.items():
                 if attribName not in unsuportedAttribs:
-                    if attribName == 'data':
+                    if attribName == "data":
                         data_row = ExCheckData()
                         for attribName, attribValue in attribValue.__dict__.items():
                             if attribName not in unsuportedAttribs:
@@ -41,11 +50,11 @@ class ExCheckController(TableController):
                                 else:
                                     setattr(data_row, attribName, attribValue)
 
-                        setattr(exCheck_row, 'data', data_row)
+                        setattr(exCheck_row, "data", data_row)
                     else:
                         setattr(exCheck_row, attribName, attribValue)
                 else:
                     pass
             return exCheck_row
         else:
-            raise TypeError('incorrect object passed to convert_exCheck_model_to_row')
+            raise TypeError("incorrect object passed to convert_exCheck_model_to_row")

@@ -1,5 +1,4 @@
 class ChatgrpVariables:
-
     def __init__(self):
         self.ID = None
         self.UID0 = None

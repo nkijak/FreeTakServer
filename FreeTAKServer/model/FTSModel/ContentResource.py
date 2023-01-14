@@ -10,8 +10,8 @@ from FreeTAKServer.model.FTSModel.Submitter import Submitter
 from FreeTAKServer.model.FTSModel.Tool import Tool
 from FreeTAKServer.model.FTSModel.Uid import Uid
 
-class ContentResource(FTSProtocolObject):
 
+class ContentResource(FTSProtocolObject):
     def __init__(self):
         pass
 
@@ -29,4 +29,3 @@ class ContentResource(FTSProtocolObject):
         contentresource.tool = Tool.ExcheckUpdate()
         contentresource.uid = Uid.ExcheckUpdate()
         return contentresource
-

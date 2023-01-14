@@ -5,15 +5,29 @@ import os
 import sys
 
 loggingConstants = LoggingConstants()
+
+
 class CreateLoggerController:
     def __init__(self, loggername, logging_constants=loggingConstants):
         self.logger = logging.getLogger(loggername)
         self.logger.propagate = True
         log_format = logging.Formatter(logging_constants.LOGFORMAT)
         self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.newHandler(logging_constants.DEBUGLOG, logging.DEBUG, log_format, logging_constants))
-        self.logger.addHandler(self.newHandler(logging_constants.ERRORLOG, logging.ERROR, log_format, logging_constants))
-        self.logger.addHandler(self.newHandler(logging_constants.INFOLOG, logging.INFO, log_format, logging_constants))
+        self.logger.addHandler(
+            self.newHandler(
+                logging_constants.DEBUGLOG, logging.DEBUG, log_format, logging_constants
+            )
+        )
+        self.logger.addHandler(
+            self.newHandler(
+                logging_constants.ERRORLOG, logging.ERROR, log_format, logging_constants
+            )
+        )
+        self.logger.addHandler(
+            self.newHandler(
+                logging_constants.INFOLOG, logging.INFO, log_format, logging_constants
+            )
+        )
         self.logger.addHandler(logging.StreamHandler(sys.stdout))
         """console = logging.StreamHandler(sys.stdout)
         console.setFormatter(log_format)
@@ -25,7 +39,7 @@ class CreateLoggerController:
         handler = RotatingFileHandler(
             filename,
             maxBytes=logging_constants.MAXFILESIZE,
-            backupCount=logging_constants.BACKUPCOUNT
+            backupCount=logging_constants.BACKUPCOUNT,
         )
         handler.setFormatter(log_format)
         handler.setLevel(log_level)

@@ -1,5 +1,4 @@
 class _Video:
-
     def __init__(self):
         self.sensor = None
         self.spi = None

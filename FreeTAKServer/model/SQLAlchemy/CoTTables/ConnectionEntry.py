@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, String, Integer
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy.orm import relationship
 
+
 class ConnectionEntry(Base):
     __tablename__ = "ConnectionEntry"
     OwnerPrimaryKey = Column(String(100), ForeignKey("_Video.PrimaryKey"))

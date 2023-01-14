@@ -1,12 +1,17 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.model.FTSModelVariables.MissionNameVariables import MissionNameVariables as vars
+from FreeTAKServer.model.FTSModelVariables.MissionNameVariables import (
+    MissionNameVariables as vars,
+)
+
 
 class MissionName(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None
 
     @staticmethod
-    def ExcheckUpdate(INTAG=vars.ExcheckUpdate().INTAG, ):
+    def ExcheckUpdate(
+        INTAG=vars.ExcheckUpdate().INTAG,
+    ):
         missionname = MissionName()
 
         missionname.setINTAG(INTAG)
@@ -18,4 +23,3 @@ class MissionName(FTSProtocolObject):
 
     def getINTAG(self):
         return self.INTAG
-
