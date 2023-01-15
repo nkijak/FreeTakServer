@@ -151,3 +151,4 @@ dmypy.json
 certs/
 FreeTAKServerDataPackageFolder/
 logs/
+scratch/

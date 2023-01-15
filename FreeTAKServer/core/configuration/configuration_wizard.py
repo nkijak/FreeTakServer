@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+from pathlib import Path
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from ruamel.yaml import YAML
 
@@ -51,7 +52,11 @@ def ask_user_for_config():
         question="where would you like to save the yaml config",
         default=config.yaml_path,
     )
-    yaml_config = yaml.load(config.yaml_path)
+    if os.path.exists(yaml_path):
+        with open(yaml_path,'r') as input:
+            yaml_config = yaml.load(input)
+    else:
+        yaml_config = {}
     ip = get_user_input(question="enter ip", default=config.UserConnectionIP)
     add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
     add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
@@ -120,9 +125,8 @@ def ask_user_for_config():
         path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config
     )
     config.yaml_path = yaml_path
-    file = open(yaml_path, mode="w+")
-    yaml.dump(yaml_config, file)
-    file.close()
+    with open(yaml_path, mode="w+") as out:
+        yaml.dump(yaml_config, out)
 
     """ip = get_user_input(question="enter ip", default=MainConfig.ip)
     MainConfig.ip = ip
@@ -131,9 +135,9 @@ def ask_user_for_config():
 
 def valid_and_safe_path(path):
     """Method that sanitized path and determines if it exists and writable"""
-    sanitized_path = os.path.relpath(
-        os.path.normpath(os.path.join(os.sep, path)), os.sep
-    )
+    # FIXME sanitize and stuff
+    path = Path(path)
+    sanitized_path = path.parent #os.path.dirname(path)
 
     return os.access(sanitized_path, os.F_OK) and os.access(sanitized_path, os.W_OK)
 

@@ -8,6 +8,7 @@ import pathlib
 import random
 import sys
 import threading
+import logging
 
 from digitalpy.core.digipy_configuration.impl.inifile_configuration import (
     InifileConfiguration,
@@ -73,13 +74,17 @@ from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.User import User
 
+
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
 
-loggingConstants = LoggingConstants(log_name="FTS_FTSCore")
-logger = CreateLoggerController(
-    "FTS_FTSCore", logging_constants=loggingConstants
-).getLogger()
+# FIXME WTF is up with this logging config
+#loggingConstants = LoggingConstants(log_name="FTS_FTSCore")
+#logger = CreateLoggerController(
+#    "FTS_FTSCore", logging_constants=loggingConstants
+#).getLogger()
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 loggingConstants = LoggingConstants()
 
@@ -250,7 +255,7 @@ class FTS:
                 self.TCPCoTService, ServiceTypes.TCPCOTSERVICE
             )
             self.FilterGroup.add_source(self.TCPCoTService, ServiceTypes.TCPCOTSERVICE)
-            print("CoTService started")
+            logger.info("CoTService started")
             return 1
         except Exception as e:
             logger.error(
@@ -292,7 +297,7 @@ class FTS:
         """
         try:
             self.tcp_data_package_service_pipe = Queue()
-            print("start 213")
+            logger.info("start 213")
             self.TCPDataPackageService = multiprocessing.Process(
                 target=TCPFlaskFunctions().startup,
                 args=(
@@ -301,7 +306,7 @@ class FTS:
                     self.tcp_data_package_service_pipe,
                 ),
             )
-            print("starting now")
+            logger.info("starting now")
             self.TCPDataPackageService.start()
             self.pipeList[
                 "tcp_data_package_service_pipe"
@@ -351,7 +356,7 @@ class FTS:
         :return:
         """
         try:
-            print("start 213")
+            logger.info("start 213")
             self.ssl_data_package_service = Queue()
             self.SSLDataPackageService = multiprocessing.Process(
                 target=SSLFlaskFunctions().startup,
@@ -361,7 +366,7 @@ class FTS:
                     self.ssl_data_package_service,
                 ),
             )
-            print("starting SSL now")
+            logger.info("starting SSL now")
             self.SSLDataPackageService.start()
             self.pipeList["ssl_data_package_service"] = self.ssl_data_package_service
             self.FilterGroup.add_source(
@@ -443,7 +448,7 @@ class FTS:
             self.FilterGroup.add_receiver(
                 self.SSLCoTServicePipe, ServiceTypes.SSLCOTSERVICE
             )
-            print("SSL CoTService started")
+            logger.info("SSL CoTService started")
             return 1
         except Exception as e:
             logger.error(
@@ -583,17 +588,10 @@ class FTS:
         """this method is responsible for registering all FTS components"""
         # define routing configuration
         self.configuration = InifileConfiguration("")
-        self.configuration.add_configuration(
-            str(
-                pathlib.PurePath(
-                    str(config.MainPath),
-                    "configuration",
-                    "routing",
-                    "action_mapping.ini",
-                )
-            ),
-        )
+        base = pathlib.Path(os.path.dirname(__file__)).parent.parent
+        self.configuration.add_configuration( base / "configuration" / "routing" / "action_mapping.ini" )
 
+        breakpoint()
         factory = DefaultFactory(self.configuration)
 
         ObjectFactory.configure(factory)
@@ -1216,7 +1214,7 @@ class FTS:
         data = [["", "", ""]]
         objects = []
         output = []
-        print(self.user_dict)
+        logger.info(self.user_dict)
         for client in self.user_dict:
             data.append(
                 [
@@ -1233,7 +1231,7 @@ class FTS:
             objects.append(simpleClient)
 
         output.append("total sockets: " + str(self.socketCount))
-        print(output)
+        logger.info(output)
         return objects
 
     def verify_output(self, input, example=None):
@@ -1322,6 +1320,7 @@ class FTS:
         UI="False",
     ):
         try:
+            breakpoint()
             self.dbController.remove_user()
             self.FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceStatus = (
                 "start"
@@ -1619,4 +1618,4 @@ if __name__ == "__main__":
             args.UI,
         )
     except Exception as e:
-        print(e)
+        logger.error(e)

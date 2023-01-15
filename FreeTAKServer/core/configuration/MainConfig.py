@@ -18,6 +18,7 @@ USERPATH = rf"{ROOTPATH}usr/local/lib/"
 # MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
 
 MAINPATH = os.getenv('WORKSPACE') or currentPath+'../../../scratch'
+WORKDIR = os.getenv('WORKSPACE')
 
 
 class MainConfig:
@@ -52,7 +53,7 @@ class MainConfig:
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
         "UserPersistencePath": {
-            "default": Path("/opt/user_persistence.txt"),
+            "default": Path(f"{WORKDIR}/user_persistence.txt"),
             "type": str,
         },
         # number of milliseconds to wait between each iteration of main loop
@@ -79,7 +80,7 @@ class MainConfig:
         # whether or not to save CoT's to the DB
         "SaveCoTToDB": {"default": True, "type": bool},
         # this should be set before startup
-        "DBFilePath": {"default": r"/opt/FTSDataBase.db", "type": str},
+        "DBFilePath": {"default": f"{WORKDIR}/FTSDataBase.db", "type": str},
         "MainPath": {"default": Path(MAINPATH), "type": str},
         "certsPath": {"default": Path(rf"{MAINPATH}/certs"), "type": str},
         "ExCheckMainPath": {"default": Path(rf"{MAINPATH}/ExCheck"), "type": str},
@@ -168,7 +169,7 @@ class MainConfig:
         "IntegrationManagerPublisherPort": {"default": 19034, "type": int},
         # address from which to publish messages by the integration manager
         "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
-        "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
+        "yaml_path": {"default": f"{WORKDIR}/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
     }
 
@@ -344,7 +345,7 @@ class MainConfig:
             # if config_file not specified, check env or use default location
             if config_file == None:
                 config_file = str(
-                    os.environ.get("FTS_CONFIG_PATH", "/opt/FTSConfig.yaml")
+                    os.environ.get("FTS_CONFIG_PATH", f"{WORKDIR}/FTSConfig.yaml")
                 )
 
             # overlay the yaml config if found

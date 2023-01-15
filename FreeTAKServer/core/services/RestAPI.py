@@ -12,6 +12,7 @@ from defusedxml import ElementTree as etree
 import os
 import shutil
 import json
+import logging
 from flask_cors import CORS
 import qrcode
 import io
@@ -2216,11 +2217,13 @@ def emitUpdates(Updates):
 
 
 class RestAPI:
+    logger = logging.getLogger(__name__)
+
     def __init__(self):
         pass
 
     def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
-        print("running api")
+        self.logger.info("starting api")
         init_config()
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
